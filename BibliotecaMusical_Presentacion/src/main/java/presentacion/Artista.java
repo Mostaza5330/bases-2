@@ -4,9 +4,23 @@
  */
 package presentacion;
 
+import com.bmn.dto.ArtistaVistaDTO;
+import com.bmn.dto.constantes.Genero;
+import com.bmn.excepciones.BOException;
+import com.bmn.factories.BOFactory;
+import com.bmn.negocio.ObtenerArtistasFiltradosBO;
+import com.bmn.singletonUsuario.UsuarioST;
 import controlador.RenderCeldas;
 import javax.swing.table.DefaultTableModel;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.List;
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 
 /**
@@ -16,81 +30,177 @@ import javax.swing.SwingConstants;
 public class Artista extends javax.swing.JFrame {
 
     private boolean isMenuVisible = true;
+    private List<ArtistaVistaDTO> artistas;
 
-    /**
-     * Creates new form Inicio
-     */
     public Artista() {
-        initComponents();
-        configurarTabla(); // Método para configurar la tabla
-        // Mueve el panel fuera de la vista al iniciar el frame
-    menuDesplegablePanel.setLocation(-menuDesplegablePanel.getWidth(), menuDesplegablePanel.getY());
+        try {
+            // Inicializar componentes gráficos
+            initComponents();
+
+            // Configurar tabla para mostrar artistas
+            configurarTabla();
+
+            // Cargar los géneros en el ComboBox (si existe)
+            cargarComboBox();
+
+            // Mover el panel fuera de la vista al iniciar el frame
+            menuDesplegablePanel.setLocation(-menuDesplegablePanel.getWidth(), menuDesplegablePanel.getY());
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al inicializar la ventana de artistas: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void configurarTabla() {
-        // Crear datos de ejemplo para la tabla
-        Object[][] datos = {
-            {"imagen1.jpg", "Dark Side of the Moon", "Pink Floyd"},
-            {"imagen2.jpg", "Thriller", "Michael Jackson"},
-            {"imagen3.jpg", "Back in Black", "AC/DC"},
-            {"imagen4.jpg", "The Wall", "Pink Floyd"},
-            {"imagen5.jpg", "Abbey Road", "The Beatles"},
-            {"imagen6.jpg", "Nevermind", "Nirvana"},
-            {"imagen7.jpg", "Rumours", "Fleetwood Mac"},
-            {"imagen8.jpg", "Purple Rain", "Prince"},
-            {"imagen9.jpg", "Born to Run", "Bruce Springsteen"}
-        };
-
-        // Configurar el modelo de la tabla con las columnas y datos
-        DefaultTableModel modelo = new DefaultTableModel(datos, new String[]{"IMAGEN", "NOMBRE DEL ALBUM", "ARTISTA"}) {
+        DefaultTableModel modelo = new DefaultTableModel(new String[]{"IMAGEN", "NOMBRE DEL ARTISTA", "GÉNERO"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // Hacer la tabla no editable
+                return false;
+            }
+
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                if (columnIndex == 0) {
+                    return ImageIcon.class;
+                }
+                return Object.class;
             }
         };
-
         tablaAlbum.setModel(modelo);
 
         // Evitar que las columnas se reordenen
         tablaAlbum.getTableHeader().setReorderingAllowed(false);
 
-        // Deshabilitar la modificación del tamaño de las columnas
-        for (int i = 0; i < tablaAlbum.getColumnModel().getColumnCount(); i++) {
-            tablaAlbum.getColumnModel().getColumn(i).setResizable(false);
-        }
-
-        // Configurar alineaciones específicas para cada columna
+        // Configurar render personalizado
         RenderCeldas render = new RenderCeldas(tablaAlbum);
-        render.setColumnAlignment(0, SwingConstants.CENTER); // Imagen centrada
-        render.setColumnAlignment(1, SwingConstants.CENTER); // Nombre centrado
-        render.setColumnAlignment(2, SwingConstants.LEFT);   // Artista a la izquierda
+        render.setColumnAlignment(0, SwingConstants.CENTER);
+        render.setColumnAlignment(1, SwingConstants.CENTER);
+        render.setColumnAlignment(2, SwingConstants.LEFT);
 
-        // Configurar colores y apariencia de la tabla
-        tablaAlbum.setBackground(new Color(35, 58, 68)); // Fondo oscuro
-        tablaAlbum.setForeground(Color.WHITE);           // Texto blanco
-        tablaAlbum.setRowHeight(50);                     // Altura de las filas
-        tablaAlbum.setSelectionBackground(new Color(58, 107, 128)); // Fondo de selección
-        tablaAlbum.setSelectionForeground(Color.WHITE);             // Texto de selección
-        tablaAlbum.setShowHorizontalLines(true);        // Mostrar líneas horizontales
-        tablaAlbum.setShowVerticalLines(false);         // Ocultar líneas verticales
-        tablaAlbum.setGridColor(new Color(255, 255, 255, 50)); // Color de las líneas de cuadrícula
+        // Configurar colores y estilos
+        tablaAlbum.setBackground(new Color(35, 58, 68));
+        tablaAlbum.setForeground(Color.WHITE);
+        tablaAlbum.setRowHeight(50);
+        tablaAlbum.setSelectionBackground(new Color(58, 107, 128));
+        tablaAlbum.setSelectionForeground(Color.WHITE);
+        tablaAlbum.setShowHorizontalLines(true);
+        tablaAlbum.setShowVerticalLines(false);
+        tablaAlbum.setGridColor(new Color(255, 255, 255, 50));
 
-        // Configurar el header de la tabla con el color específico y centrado
+        // Configurar header
         tablaAlbum.getTableHeader().setBackground(new Color(35, 58, 68));
         tablaAlbum.getTableHeader().setForeground(Color.WHITE);
 
-        // Configurar el scroll pane
+        // Configurar ScrollPane
         jScrollPane1.setBorder(null);
         jScrollPane1.getViewport().setBackground(new Color(35, 58, 68));
-
-        // Ajustar las posiciones para evitar la superposición
         jScrollPane1.setBounds(menuDesplegablePanel.getWidth(), jScrollPane1.getY(),
                 getWidth() - menuDesplegablePanel.getWidth(), jScrollPane1.getHeight());
 
-        // Ajustar el ancho de las columnas
-        tablaAlbum.getColumnModel().getColumn(0).setPreferredWidth(200); // Imagen
-        tablaAlbum.getColumnModel().getColumn(1).setPreferredWidth(150); // Nombre
-        tablaAlbum.getColumnModel().getColumn(2).setPreferredWidth(100); // Artista
+        // Configurar columnas
+        tablaAlbum.getColumnModel().getColumn(0).setPreferredWidth(100);
+        tablaAlbum.getColumnModel().getColumn(1).setPreferredWidth(200);
+        tablaAlbum.getColumnModel().getColumn(2).setPreferredWidth(150);
+
+        cargarDatosDeLaBaseDeDatos(modelo);
+    }
+
+    private void cargarComboBox() {
+        if (generoFiltro != null) {  // Asumiendo que existe un ComboBox llamado generoFiltro
+            for (Genero genero : Genero.values()) {
+                generoFiltro.addItem(genero.name());
+            }
+        }
+    }
+
+    private void cargarDatosDeLaBaseDeDatos(DefaultTableModel modelo) {
+        try {
+            // Obtener instancia del BO para filtrar artistas
+            ObtenerArtistasFiltradosBO obtener = BOFactory.obtenerArtistasFiltradosFactory();
+
+            // Llamar al método de lógica de negocio para buscar artistas
+            List<ArtistaVistaDTO> artistas = obtener.obtenerArtistasFiltrados(null, null);
+
+            this.artistas = artistas;
+
+            System.out.println("Número de artistas encontrados: " + artistas.size());
+
+            modelo.setRowCount(0);
+
+            for (ArtistaVistaDTO artista : artistas) {
+                System.out.println("Artista: " + artista.getNombre() + ", Imagen: " + artista.getImagen());
+
+                ImageIcon imagen = cargarImagen(artista.getImagen());
+
+                modelo.addRow(new Object[]{
+                    imagen,
+                    artista.getNombre(),
+                    // Aquí podrías agregar el género si está disponible en ArtistaVistaDTO
+                    "Género" // Placeholder
+                });
+            }
+
+            System.out.println("Filas añadidas a la tabla: " + modelo.getRowCount());
+        } catch (BOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Error al cargar artistas: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private ImageIcon cargarImagen(String nombreImagen) {
+        try {
+            if (nombreImagen == null || nombreImagen.trim().isEmpty()) {
+                return crearImagenPorDefecto();
+            }
+
+            String rutaCompleta = "src/ImagenesArtistas/" + nombreImagen;
+            File archivoImagen = new File(rutaCompleta);
+
+            if (!archivoImagen.exists()) {
+                System.err.println("Imagen no encontrada: " + rutaCompleta);
+                return crearImagenPorDefecto();
+            }
+
+            ImageIcon originalIcon = new ImageIcon(rutaCompleta);
+
+            if (originalIcon.getIconWidth() <= 0) {
+                System.err.println("Error al cargar la imagen: " + rutaCompleta);
+                return crearImagenPorDefecto();
+            }
+
+            Image scaledImage = originalIcon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+            return new ImageIcon(scaledImage);
+
+        } catch (Exception e) {
+            System.err.println("Excepción al cargar imagen: " + nombreImagen);
+            e.printStackTrace();
+            return crearImagenPorDefecto();
+        }
+    }
+
+    private ImageIcon crearImagenPorDefecto() {
+        BufferedImage placeholderImage = new BufferedImage(50, 50, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = placeholderImage.createGraphics();
+
+        g2d.setColor(new Color(200, 200, 200));
+        g2d.fillRect(0, 0, 50, 50);
+
+        g2d.setColor(Color.DARK_GRAY);
+        g2d.drawRect(0, 0, 49, 49);
+
+        g2d.setColor(Color.BLACK);
+        g2d.setFont(new Font("Arial", Font.BOLD, 10));
+        g2d.drawString("No Image", 5, 30);
+
+        g2d.dispose();
+
+        return new ImageIcon(placeholderImage);
     }
 
     @SuppressWarnings("unchecked")
@@ -116,6 +226,7 @@ public class Artista extends javax.swing.JFrame {
         panelRound3 = new controlador.PanelRound();
         busqueda = new javax.swing.JTextField();
         buscarBtn = new javax.swing.JButton();
+        generoFiltro = new javax.swing.JComboBox<>();
         panelInformacionAlbum = new controlador.PanelRound();
         panelRound5 = new controlador.PanelRound();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -154,6 +265,7 @@ public class Artista extends javax.swing.JFrame {
         artistaLb.setForeground(new java.awt.Color(255, 255, 255));
         artistaLb.setText("Artista");
         artistaLb.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        artistaLb.setEnabled(false);
         artistaLb.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 artistaLbMouseClicked(evt);
@@ -253,7 +365,7 @@ public class Artista extends javax.swing.JFrame {
 
         jLabel1.setFont(new java.awt.Font("OCR A Extended", 0, 36)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("Principal");
+        jLabel1.setText("Artista");
 
         menuBtn.setBackground(new java.awt.Color(58, 107, 128));
         menuBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/media/menu.png"))); // NOI18N
@@ -310,6 +422,10 @@ public class Artista extends javax.swing.JFrame {
                 .addGap(8, 8, 8))
         );
 
+        generoFiltro.setBackground(new java.awt.Color(35, 58, 68));
+        generoFiltro.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
+        generoFiltro.setForeground(new java.awt.Color(255, 255, 255));
+
         javax.swing.GroupLayout panelRound1Layout = new javax.swing.GroupLayout(panelRound1);
         panelRound1.setLayout(panelRound1Layout);
         panelRound1Layout.setHorizontalGroup(
@@ -319,9 +435,11 @@ public class Artista extends javax.swing.JFrame {
                 .addComponent(menuBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(37, 37, 37)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 515, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 442, Short.MAX_VALUE)
+                .addComponent(generoFiltro, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(panelRound3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(126, 126, 126))
+                .addGap(30, 30, 30))
         );
         panelRound1Layout.setVerticalGroup(
             panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -332,7 +450,9 @@ public class Artista extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(generoFiltro, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(panelRound3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(45, 45, 45))
         );
@@ -418,11 +538,13 @@ public class Artista extends javax.swing.JFrame {
     }//GEN-LAST:event_buscarBtnActionPerformed
 
     private void perfilLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_perfilLbMouseClicked
-        // TODO add your handling code here:
+        dispose();
+        new ActualizarUsuario().setVisible(true);
     }//GEN-LAST:event_perfilLbMouseClicked
 
     private void artistasFavLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_artistasFavLbMouseClicked
-        // TODO add your handling code here:
+        dispose();
+        new ArtistaFavorito().setVisible(true);
     }//GEN-LAST:event_artistasFavLbMouseClicked
 
     private void menuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBtnActionPerformed
@@ -452,32 +574,34 @@ public class Artista extends javax.swing.JFrame {
     }//GEN-LAST:event_menuBtnActionPerformed
 
     private void artistaLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_artistaLbMouseClicked
-        // TODO add your handling code here:
+        dispose();
+        new Artista().setVisible(true);
     }//GEN-LAST:event_artistaLbMouseClicked
 
     private void albumFavLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_albumFavLbMouseClicked
-        // TODO add your handling code here:
+        dispose();
+        new AlbumFavorito().setVisible(true);
     }//GEN-LAST:event_albumFavLbMouseClicked
 
     private void albumLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_albumLbMouseClicked
-        // TODO add your handling code here:
+        dispose();
+        new Principal().setVisible(true);
     }//GEN-LAST:event_albumLbMouseClicked
 
     private void salirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_salirMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_salirMouseClicked
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro que desea salir?",
+                "Confirmar Salida",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Artista().setVisible(true);
-            }
-        });
-    }
+        if (confirm == JOptionPane.YES_OPTION) {
+            dispose(); // Properly dispose of the window instead of System.exit(0)
+            System.exit(0);
+        }
+    }//GEN-LAST:event_salirMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Fondo;
@@ -487,6 +611,7 @@ public class Artista extends javax.swing.JFrame {
     private javax.swing.JLabel artistasFavLb;
     private javax.swing.JButton buscarBtn;
     private javax.swing.JTextField busqueda;
+    private javax.swing.JComboBox<String> generoFiltro;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;

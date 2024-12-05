@@ -5,14 +5,12 @@ presentacion\Principal$3.class
 presentacion\Baneado$12.class
 presentacion\Baneado$4.class
 presentacion\Entrar.class
-presentacion\Baneado$MenuItemListener.class
 javaswingdev\shadow\GraphicsUtilities.class
 presentacion\AlbumFavorito$3.class
 presentacion\Artista.class
 presentacion\AlbumFavorito$4.class
 presentacion\ActualizarUsuario$1.class
 presentacion\Baneado$5.class
-presentacion\Baneado$13.class
 presentacion\ArtistaFavorito$5.class
 controlador\TableHeaderAlignment$1.class
 presentacion\AlbumFavorito$10.class
@@ -31,6 +29,7 @@ presentacion\ActualizarUsuario.class
 presentacion\Baneado$11.class
 presentacion\Baneado$10.class
 presentacion\AlbumFavorito$7.class
+presentacion\ActualizarUsuario$3.class
 presentacion\ArtistaFavorito$9.class
 presentacion\Baneado$9.class
 presentacion\Principal$1.class
@@ -59,10 +58,8 @@ presentacion\Artista$6.class
 controlador\PanelRound$1.class
 Main.class
 presentacion\Baneado$6.class
-presentacion\Artista$12.class
 presentacion\ArtistaFavorito$6.class
 javaswingdev\pggb\PanelGlowingGradient.class
-presentacion\AlbumFavorito$12.class
 presentacion\Artista$11.class
 presentacion\AlbumFavorito.class
 presentacion\Artista$1.class
@@ -74,7 +71,6 @@ presentacion\Principal.class
 javaswingdev\shadow\ShadowRenderer.class
 presentacion\Entrar$1.class
 presentacion\ArtistaFavorito$3.class
-presentacion\Baneado$14.class
 presentacion\Artista$4.class
 presentacion\AlbumFavorito$2.class
 presentacion\Principal$7.class

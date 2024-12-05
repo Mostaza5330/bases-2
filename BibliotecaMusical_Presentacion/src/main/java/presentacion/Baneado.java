@@ -1,14 +1,17 @@
 package presentacion;
 
+import com.bmn.dto.constantes.Genero;
+import com.bmn.excepciones.BOException;
+import com.bmn.factories.BOFactory;
+import com.bmn.negocio.ObtenerRestringidosBO;
 import controlador.RenderCeldas;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.Color;
-import javax.swing.SwingConstants;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import javax.swing.JOptionPane;
-import javax.swing.RowFilter;
 import javax.swing.table.TableRowSorter;
+import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.util.List;
 
 /**
  *
@@ -16,302 +19,112 @@ import javax.swing.table.TableRowSorter;
  */
 public class Baneado extends javax.swing.JFrame {
 
-// Constantes
-private static final Color COLOR_FONDO = new Color(24, 40, 54);
-private static final Color COLOR_PANELES = new Color(35, 58, 68);
-private static final Color COLOR_ACENTOS = new Color(58, 107, 128);
-
 // Variables de instancia
-private boolean isMenuVisible = false;
-private DefaultTableModel modeloTabla;
-private TableRowSorter<DefaultTableModel> sorter;
-private javax.swing.JPanel glassPanel;
+    private boolean isMenuVisible = false;
+    private DefaultTableModel modeloTabla;
+    private TableRowSorter<DefaultTableModel> sorter;
+    private javax.swing.JPanel glassPanel;
+    private List<Genero> generosRestringidos;
 
-public Baneado() {
-    initComponents();
-    initializeUI();
-    configurarCampoBusqueda();
-}
+    public Baneado() {
+        try {
+            // Inicializar componentes gráficos
+            initComponents();
 
-private void initializeUI() {
-    configurarTabla();
-    initGlassPanel();
-    configurarEventos();
-    configurarEstilos();
-    initializeMenu();
-}
+            // Configurar tabla para mostrar géneros restringidos
+            configurarTabla();
 
-private void initializeMenu() {
-    // Inicializar la posición del menú
-    menuDesplegablePanel.setLocation(-menuDesplegablePanel.getWidth(), menuDesplegablePanel.getY());
-}
+            // Configurar eventos de búsqueda y filtrado
+            configurarEventosBusqueda();
 
-
-private void configurarEstilos() {
-    // Establecer colores de fondo
-    Fondo.setBackground(COLOR_FONDO);
-    menuDesplegablePanel.setBackground(COLOR_ACENTOS);
-
-    // Configurar botones
-    configurarBoton(buscarBtn, COLOR_PANELES);
-    configurarBoton(menuBtn, COLOR_ACENTOS);
-
-    // Configurar campo de búsqueda
-    configurarCampoBusqueda();
-}
-
-private void configurarCampoBusqueda() {
-    busqueda.setCaretColor(Color.WHITE);
-    busqueda.putClientProperty("JTextField.placeholderText", "Buscar género...");
-}
-
-private void configurarBoton(javax.swing.JButton boton, Color color) {
-    boton.setBackground(color);
-    boton.setFocusPainted(false);
-    boton.setBorderPainted(false);
-    boton.setContentAreaFilled(false);
-    boton.setOpaque(true);
-}
-
-private void configurarTabla() {
-    initializeTableModel();
-    configureTableAppearance();
-    configureTableSorter();
-    configureTableRenderer();
-    configureScrollPane();
-    adjustTableColumns();
-}
-
-private void initializeTableModel() {
-    String[] columnNames = {"Género", "Fecha de baneo", "Razón"};
-    Object[][] datos = {
-        {"Rock", "2024-01-15", "Contenido inapropiado"},
-        {"Pop", "2024-02-01", "Violación de términos"},
-        {"Jazz", "2024-02-15", "Spam repetitivo"},
-        {"Hip Hop", "2024-03-01", "Contenido ofensivo"}
-    };
-
-    modeloTabla = new DefaultTableModel(datos, columnNames) {
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
+            // Cargar los géneros restringidos
+            cargarGenerosRestringidos();
+        } catch (Exception e) {
+            // Manejo de excepciones generales
+            JOptionPane.showMessageDialog(this,
+                    "Error al inicializar la ventana de géneros restringidos: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
-    };
-    tablaBaneado.setModel(modeloTabla);
-}
-
-private void configureTableAppearance() {
-    tablaBaneado.setBackground(COLOR_PANELES);
-    tablaBaneado.setForeground(Color.WHITE);
-    tablaBaneado.setRowHeight(50);
-    tablaBaneado.setSelectionBackground(COLOR_ACENTOS);
-    tablaBaneado.setSelectionForeground(Color.WHITE);
-    tablaBaneado.setShowHorizontalLines(true);
-    tablaBaneado.setShowVerticalLines(false);
-    tablaBaneado.setGridColor(new Color(255, 255, 255, 50));
-
-    // Configurar encabezado
-    tablaBaneado.getTableHeader().setBackground(COLOR_PANELES);
-    tablaBaneado.getTableHeader().setForeground(Color.WHITE);
-}
-
-private void configureTableSorter() {
-    sorter = new TableRowSorter<>(modeloTabla);
-    tablaBaneado.setRowSorter(sorter);
-}
-
-private void configureTableRenderer() {
-    RenderCeldas render = new RenderCeldas(tablaBaneado);
-    render.setColumnAlignment(0, SwingConstants.CENTER);
-    render.setColumnAlignment(1, SwingConstants.CENTER);
-    render.setColumnAlignment(2, SwingConstants.LEFT);
-}
-
-private void configureScrollPane() {
-    jScrollPane1.setBorder(null);
-    jScrollPane1.getViewport().setBackground(COLOR_PANELES);
-    jScrollPane1.setBounds(
-            menuDesplegablePanel.getWidth(),
-            jScrollPane1.getY(),
-            getWidth() - menuDesplegablePanel.getWidth(),
-            jScrollPane1.getHeight()
-    );
-}
-
-private void adjustTableColumns() {
-    tablaBaneado.getColumnModel().getColumn(0).setPreferredWidth(150);
-    tablaBaneado.getColumnModel().getColumn(1).setPreferredWidth(120);
-    tablaBaneado.getColumnModel().getColumn(2).setPreferredWidth(200);
-}
-
-private void configurarEventos() {
-    configurarEventoBusqueda();
-    configurarEventosMenu();
-}
-
-private void configurarEventoBusqueda() {
-    busqueda.addKeyListener(new java.awt.event.KeyAdapter() {
-        @Override
-        public void keyReleased(java.awt.event.KeyEvent evt) {
-            filtrarTabla(busqueda.getText());
-        }
-    });
-}
-
-private void filtrarTabla(String texto) {
-    if (texto.trim().isEmpty()) {
-        sorter.setRowFilter(null);
-    } else {
-        sorter.setRowFilter(RowFilter.regexFilter("(?i)" + texto));
-    }
-}
-
-private void configurarEventosMenu() {
-    configurarEventoMenuItem(albumLb, "Navegando a Álbumes");
-    configurarEventoMenuItem(albumFavLb, "Navegando a Álbumes Favoritos");
-    configurarEventoMenuItem(artistaLb, "Navegando a Artistas");
-    configurarEventoMenuItem(artistasFavLb, "Navegando a Artistas Favoritos");
-    configurarEventoMenuItem(perfilLb, "Navegando a Mi Perfil");
-    configurarEventoSalir();
-}
-
-private void configurarEventoMenuItem(javax.swing.JLabel menuItem, String mensaje) {
-    menuItem.addMouseListener(new MenuItemListener(()
-            -> JOptionPane.showMessageDialog(this, mensaje)
-    ));
-}
-
-private void configurarEventoSalir() {
-    salir.addMouseListener(new MenuItemListener(() -> {
-        int option = JOptionPane.showConfirmDialog(this,
-                "¿Estás seguro que deseas salir?",
-                "Confirmar salida",
-                JOptionPane.YES_NO_OPTION);
-        if (option == JOptionPane.YES_OPTION) {
-            System.exit(0);
-        }
-    }));
-}
-
-private class MenuItemListener extends MouseAdapter {
-
-    private final Runnable action;
-
-    public MenuItemListener(Runnable action) {
-        this.action = action;
     }
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        action.run();
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-        ((javax.swing.JLabel) e.getComponent()).setForeground(new Color(200, 200, 200));
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-        ((javax.swing.JLabel) e.getComponent()).setForeground(Color.WHITE);
-    }
-}
-
-private void initGlassPanel() {
-    glassPanel = new javax.swing.JPanel();
-    glassPanel.setOpaque(false);
-    glassPanel.setBackground(new Color(0, 0, 0, 50));
-    glassPanel.setVisible(false);
-
-    glassPanel.addMouseListener(new MouseAdapter() {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            e.consume();
-        }
-
-        @Override
-        public void mousePressed(MouseEvent e) {
-            e.consume();
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
-            e.consume();
-        }
-    });
-
-    setGlassPane(glassPanel);
-}
-
-private void toggleMenu() {
-    int panelWidth = menuDesplegablePanel.getWidth();
-    int targetX = isMenuVisible ? -panelWidth : 0; // Posición final del panel
-    isMenuVisible = !isMenuVisible; // Alterna el estado del menú
-
-    // Desactivar elementos interactivos (como la tabla) cuando el menú está visible
-    tablaBaneado.setEnabled(!isMenuVisible);
-
-    // Inicia el temporizador para animar el panel
-    javax.swing.Timer timer = new javax.swing.Timer(10, new java.awt.event.ActionListener() {
-        int currentX = menuDesplegablePanel.getX(); // Posición actual del panel
-        int step = (targetX - currentX) / 15; // Tamaño del paso de movimiento
-
-        @Override
-        public void actionPerformed(java.awt.event.ActionEvent e) {
-            // Movimiento gradual hacia la posición final
-            if ((step > 0 && currentX < targetX) || (step < 0 && currentX > targetX)) {
-                currentX += step;
-                menuDesplegablePanel.setLocation(currentX, menuDesplegablePanel.getY());
-            } else {
-                // Asegura que el panel alcance exactamente su posición final
-                menuDesplegablePanel.setLocation(targetX, menuDesplegablePanel.getY());
-                ((javax.swing.Timer) e.getSource()).stop(); // Detiene la animación
+    private void configurarTabla() {
+        modeloTabla = new DefaultTableModel(new String[]{"GÉNERO RESTRINGIDO"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Hacer la tabla no editable
             }
-        }
-    });
-
-    timer.start(); // Comienza la animación
-}
-
-
-private void updateUIForMenuToggle(boolean opening) {
-    if (opening) {
-        glassPanel.setVisible(true);
-        // Asegúrate de que `menuDesplegablePanel` sea hijo directo de `Fondo`
-        if (Fondo.isAncestorOf(menuDesplegablePanel)) {
-            Fondo.setComponentZOrder(menuDesplegablePanel, 0);
-        }
-        tablaBaneado.clearSelection();
-        tablaBaneado.setEnabled(false);
-    } else {
-        tablaBaneado.setEnabled(true);
+        };
+        tablaBaneado.setModel(modeloTabla);
+        // Configurar render personalizado
+        RenderCeldas render = new RenderCeldas(tablaBaneado);
+        render.setColumnAlignment(0, SwingConstants.CENTER);
+        // Configurar colores y estilos
+        tablaBaneado.setBackground(new Color(35, 58, 68));
+        tablaBaneado.setForeground(Color.WHITE);
+        tablaBaneado.setRowHeight(50);
+        tablaBaneado.setSelectionBackground(new Color(58, 107, 128));
+        tablaBaneado.setSelectionForeground(Color.WHITE);
+        tablaBaneado.getTableHeader().setBackground(new Color(35, 58, 68));
+        tablaBaneado.getTableHeader().setForeground(Color.WHITE);
     }
-}
 
+    private void cargarGenerosRestringidos() {
+        try {
+            // Usar ObtenerRestringidosBO para obtener los géneros restringidos
+            ObtenerRestringidosBO obtenerRestringidos = BOFactory.obtenerRestringidosFactory();
 
-private void animateMenu(int targetX) {
-    javax.swing.Timer timer = new javax.swing.Timer(10, new java.awt.event.ActionListener() {
-        int currentX = menuDesplegablePanel.getX();
-        int step = (targetX - currentX) / 15;
+            generosRestringidos = obtenerRestringidos.obtenerRestringidos();
 
-        @Override
-        public void actionPerformed(java.awt.event.ActionEvent e) {
-            if ((step > 0 && currentX < targetX) || (step < 0 && currentX > targetX)) {
-                currentX += step;
-                menuDesplegablePanel.setLocation(currentX, menuDesplegablePanel.getY());
-            } else {
-                menuDesplegablePanel.setLocation(targetX, menuDesplegablePanel.getY());
-                ((javax.swing.Timer) e.getSource()).stop();
+            // Limpiar modelo de tabla existente
+            modeloTabla.setRowCount(0);
 
-                if (targetX < 0) {
-                    glassPanel.setVisible(false);
-                }
+            // Iterar sobre los géneros restringidos y agregarlos a la tabla
+            for (Genero genero : generosRestringidos) {
+                modeloTabla.addRow(new Object[]{genero.name()});
             }
-        }
-    });
 
-    timer.start();
-}
+            // Mensaje de depuración
+            System.out.println("Géneros restringidos encontrados: " + generosRestringidos.size());
+        } catch (BOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Error al cargar géneros restringidos: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // Método getter para obtener los géneros restringidos
+    public List<Genero> getGenerosRestringidos() {
+        return generosRestringidos;
+    }
+
+    private void configurarEventosBusqueda() {
+        // Configurar evento de búsqueda para el campo de texto
+        busqueda.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                String texto = busqueda.getText().trim();
+                buscarGenero(texto);
+            }
+        });
+    }
+
+    private void buscarGenero(String texto) {
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(modeloTabla);
+        tablaBaneado.setRowSorter(sorter);
+
+        if (texto.isEmpty()) {
+            sorter.setRowFilter(null);
+            return;
+        }
+
+        RowFilter<DefaultTableModel, Object> filter = RowFilter.regexFilter(
+                "(?i)" + texto, 0
+        ); // Buscar en la columna de géneros
+        sorter.setRowFilter(filter);
+    }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -337,6 +150,11 @@ private void animateMenu(int targetX) {
         buscarBtn = new javax.swing.JButton();
         menuBtn = new javax.swing.JButton();
         panelInformacionAlbum = new controlador.PanelRound();
+        jLabel2 = new javax.swing.JLabel();
+        generoSinBan = new javax.swing.JComboBox<>();
+        generoBaneado = new javax.swing.JComboBox<>();
+        quitarBaneoBtn = new javax.swing.JButton();
+        banearBtn = new javax.swing.JButton();
         panelRound5 = new controlador.PanelRound();
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaBaneado = new javax.swing.JTable();
@@ -564,15 +382,64 @@ private void animateMenu(int targetX) {
         panelInformacionAlbum.setRoundTopLeft(30);
         panelInformacionAlbum.setRoundTopRight(30);
 
+        jLabel2.setFont(new java.awt.Font("OCR A Extended", 0, 36)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel2.setText("Banear o Quitar el ban");
+
+        generoSinBan.setBackground(new java.awt.Color(58, 107, 128));
+        generoSinBan.setEditable(true);
+        generoSinBan.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
+        generoSinBan.setForeground(new java.awt.Color(255, 255, 255));
+
+        generoBaneado.setBackground(new java.awt.Color(58, 107, 128));
+        generoBaneado.setEditable(true);
+        generoBaneado.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
+        generoBaneado.setForeground(new java.awt.Color(255, 255, 255));
+
+        quitarBaneoBtn.setBackground(new java.awt.Color(58, 107, 128));
+        quitarBaneoBtn.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
+        quitarBaneoBtn.setForeground(new java.awt.Color(255, 255, 255));
+        quitarBaneoBtn.setText("Quitar Ban");
+
+        banearBtn.setBackground(new java.awt.Color(58, 107, 128));
+        banearBtn.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
+        banearBtn.setForeground(new java.awt.Color(255, 255, 255));
+        banearBtn.setText("Banear");
+
         javax.swing.GroupLayout panelInformacionAlbumLayout = new javax.swing.GroupLayout(panelInformacionAlbum);
         panelInformacionAlbum.setLayout(panelInformacionAlbumLayout);
         panelInformacionAlbumLayout.setHorizontalGroup(
             panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 590, Short.MAX_VALUE)
+            .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
+                .addGap(44, 44, 44)
+                .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 492, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(54, Short.MAX_VALUE))
+                    .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
+                        .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(generoSinBan, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(banearBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(quitarBaneoBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(generoBaneado, 0, 160, Short.MAX_VALUE))
+                        .addGap(84, 84, 84))))
         );
         panelInformacionAlbumLayout.setVerticalGroup(
             panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 260, Short.MAX_VALUE)
+            .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(generoSinBan, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(generoBaneado, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(22, 22, 22)
+                .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(quitarBaneoBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 43, Short.MAX_VALUE)
+                    .addComponent(banearBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(69, Short.MAX_VALUE))
         );
 
         Fondo.add(panelInformacionAlbum, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 90, 590, 260));
@@ -633,43 +500,76 @@ private void animateMenu(int targetX) {
     }//GEN-LAST:event_busquedaActionPerformed
 
     private void buscarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buscarBtnActionPerformed
-        // TODO add your handling code here:
+
     }//GEN-LAST:event_buscarBtnActionPerformed
 
     private void perfilLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_perfilLbMouseClicked
-        // TODO add your handling code here:
+
+        dispose();
+        new ActualizarUsuario().setVisible(true);
     }//GEN-LAST:event_perfilLbMouseClicked
 
     private void artistasFavLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_artistasFavLbMouseClicked
-        // TODO add your handling code here:
+        dispose();
+        new ArtistaFavorito().setVisible(true);
     }//GEN-LAST:event_artistasFavLbMouseClicked
 
     private void menuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBtnActionPerformed
-        toggleMenu(); // Llama al método que realiza la animación
+        int panelWidth = menuDesplegablePanel.getWidth();
+        int targetX = isMenuVisible ? -panelWidth : 0; // Determina el objetivo según el estado
+        isMenuVisible = !isMenuVisible; // Alternar estado
+
+        // Desactivar tabla cuando el menú está visible
+        tablaBaneado.setEnabled(!isMenuVisible);
+
+        javax.swing.Timer timer = new javax.swing.Timer(15, new java.awt.event.ActionListener() {
+            int currentX = menuDesplegablePanel.getX();
+
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                if ((isMenuVisible && currentX < targetX) || (!isMenuVisible && currentX > targetX)) {
+                    currentX += isMenuVisible ? 15 : -15; // Mover según el estado
+                    menuDesplegablePanel.setLocation(currentX, menuDesplegablePanel.getY());
+                } else {
+                    ((javax.swing.Timer) e.getSource()).stop();
+                }
+            }
+        });
+
+        timer.start();
+
     }//GEN-LAST:event_menuBtnActionPerformed
 
     private void artistaLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_artistaLbMouseClicked
-        // TODO add your handling code here:
+        dispose();
+        new Artista().setVisible(true);
     }//GEN-LAST:event_artistaLbMouseClicked
 
     private void albumFavLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_albumFavLbMouseClicked
-        // TODO add your handling code here:
+
+        dispose();
+        new AlbumFavorito().setVisible(true);
     }//GEN-LAST:event_albumFavLbMouseClicked
 
     private void albumLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_albumLbMouseClicked
-        // TODO add your handling code here:
+        dispose();
+        new Principal().setVisible(true);
     }//GEN-LAST:event_albumLbMouseClicked
 
     private void salirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_salirMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_salirMouseClicked
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro que desea salir?",
+                "Confirmar Salida",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(() -> new Baneado().setVisible(true));
-    }
+        if (confirm == JOptionPane.YES_OPTION) {
+            dispose(); // Properly dispose of the window instead of System.exit(0)
+            System.exit(0);
+        }
+    }//GEN-LAST:event_salirMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Fondo;
@@ -677,9 +577,13 @@ private void animateMenu(int targetX) {
     private javax.swing.JLabel albumLb;
     private javax.swing.JLabel artistaLb;
     private javax.swing.JLabel artistasFavLb;
+    private javax.swing.JButton banearBtn;
     private javax.swing.JButton buscarBtn;
     private javax.swing.JTextField busqueda;
+    private javax.swing.JComboBox<String> generoBaneado;
+    private javax.swing.JComboBox<String> generoSinBan;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
@@ -693,6 +597,7 @@ private void animateMenu(int targetX) {
     private controlador.PanelRound panelRound3;
     private controlador.PanelRound panelRound5;
     private javax.swing.JLabel perfilLb;
+    private javax.swing.JButton quitarBaneoBtn;
     private javax.swing.JLabel salir;
     private javax.swing.JTable tablaBaneado;
     // End of variables declaration//GEN-END:variables

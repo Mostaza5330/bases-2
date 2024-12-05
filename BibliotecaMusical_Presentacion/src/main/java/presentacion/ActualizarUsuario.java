@@ -72,6 +72,11 @@ public class ActualizarUsuario extends JFrame {
                 volverAPrincipal();
             }
         });
+        banBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                enviarBaneado();
+            }
+        });
     }
 
     /**
@@ -203,6 +208,14 @@ public class ActualizarUsuario extends JFrame {
      */
     private void volverAPrincipal() {
         new Principal().setVisible(true);
+        dispose();
+    }
+
+    /**
+     * Vuelve a la pantalla baneo
+     */
+    private void enviarBaneado() {
+        new Baneado().setVisible(true);
         dispose();
     }
 

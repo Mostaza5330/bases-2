@@ -17,8 +17,6 @@ import javax.swing.*;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.swing.table.TableRowSorter;
@@ -775,19 +773,7 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_artistaLbMouseClicked
 
     private void albumFavLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_albumFavLbMouseClicked
-        try {
-            // Add your implementation here
-            // Example: new FavoriteAlbums().setVisible(true);
-            JOptionPane.showMessageDialog(this,
-                    "Función en desarrollo",
-                    "Aviso",
-                    JOptionPane.INFORMATION_MESSAGE);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this,
-                    "Error al abrir álbumes favoritos: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
+      
     }//GEN-LAST:event_albumFavLbMouseClicked
 
     private void salirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_salirMouseClicked

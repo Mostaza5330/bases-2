@@ -8,8 +8,6 @@ import org.bson.types.ObjectId;
 import java.util.List;
 
 public class InsertaAlbumes {
-ObjectId id = new ObjectId();
-
     public List<Album> crearAlbums(List<Artista> artistas) {
         List<Album> albumes = new ArrayList<>();
 

@@ -4,10 +4,23 @@
  */
 package presentacion;
 
+import java.awt.Graphics2D;
+import com.bmd.entities.Usuario;
+import com.bmn.dto.AlbumVistaDTO;
+import com.bmn.dto.constantes.Genero;
+import com.bmn.excepciones.BOException;
+import com.bmn.factories.BOFactory;
+import com.bmn.negocio.ObtenerAlbumesFiltradosBO;
+import com.bmn.singletonUsuario.UsuarioST;
 import controlador.RenderCeldas;
+import javax.swing.*;
+import java.util.List;
 import javax.swing.table.DefaultTableModel;
-import java.awt.Color;
-import javax.swing.SwingConstants;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.regex.PatternSyntaxException;
+import javax.swing.table.TableRowSorter;
 
 /**
  *
@@ -16,81 +29,186 @@ import javax.swing.SwingConstants;
 public class AlbumFavorito extends javax.swing.JFrame {
 
     private boolean isMenuVisible = true;
+    private Usuario usuarioActual;
+    private List<AlbumVistaDTO> albumes;
+    private ObtenerAlbumesFiltradosBO obtenerAlbumes;
 
-    /**
-     * Creates new form Inicio
-     */
     public AlbumFavorito() {
-        initComponents();
-        configurarTabla(); // Método para configurar la tabla
-        // Mueve el panel fuera de la vista al iniciar el frame
-    menuDesplegablePanel.setLocation(-menuDesplegablePanel.getWidth(), menuDesplegablePanel.getY());
+        try {
+            initComponents();
+
+            // Configurar tabla
+            configurarTabla();
+
+            // Obtener usuario actual
+            this.usuarioActual = UsuarioST.getInstance();
+            if (usuarioActual != null) {
+                System.out.println("Usuario actual: " + usuarioActual.getNombre());
+            } else {
+                System.out.println("No se encontró información del usuario actual.");
+            }
+
+            // Inicializar lógica de negocio
+            this.obtenerAlbumes = BOFactory.obtenerAlbumesFiltradosFactory();
+
+            // Mover panel fuera de vista
+            menuDesplegablePanel.setLocation(-menuDesplegablePanel.getWidth(),
+                    menuDesplegablePanel.getY());
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al inicializar la ventana de álbumes favoritos: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void filterTable(String searchTerm) {
+        DefaultTableModel model = (DefaultTableModel) tablaAlbum.getModel();
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
+        tablaAlbum.setRowSorter(sorter);
+
+        if (searchTerm.length() == 0) {
+            sorter.setRowFilter(null);
+        } else {
+            try {
+                RowFilter<DefaultTableModel, Object> filter = RowFilter.regexFilter(
+                        "(?i)" + searchTerm, 1, 2 // Buscar en nombre del álbum y artista
+                );
+                sorter.setRowFilter(filter);
+            } catch (PatternSyntaxException pse) {
+                System.err.println("Error en patrón de búsqueda: " + pse.getMessage());
+                tablaAlbum.setRowSorter(null);
+            }
+        }
     }
 
     private void configurarTabla() {
-        // Crear datos de ejemplo para la tabla
-        Object[][] datos = {
-            {"imagen1.jpg", "Dark Side of the Moon", "Pink Floyd"},
-            {"imagen2.jpg", "Thriller", "Michael Jackson"},
-            {"imagen3.jpg", "Back in Black", "AC/DC"},
-            {"imagen4.jpg", "The Wall", "Pink Floyd"},
-            {"imagen5.jpg", "Abbey Road", "The Beatles"},
-            {"imagen6.jpg", "Nevermind", "Nirvana"},
-            {"imagen7.jpg", "Rumours", "Fleetwood Mac"},
-            {"imagen8.jpg", "Purple Rain", "Prince"},
-            {"imagen9.jpg", "Born to Run", "Bruce Springsteen"}
-        };
-
-        // Configurar el modelo de la tabla con las columnas y datos
-        DefaultTableModel modelo = new DefaultTableModel(datos, new String[]{"IMAGEN", "NOMBRE DEL ALBUM", "ARTISTA"}) {
+        DefaultTableModel modelo = new DefaultTableModel(
+                new String[]{"IMAGEN", "NOMBRE DEL ALBUM", "ARTISTA"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // Hacer la tabla no editable
+                return false;
+            }
+
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                if (columnIndex == 0) {
+                    return ImageIcon.class;
+                }
+                return Object.class;
             }
         };
 
         tablaAlbum.setModel(modelo);
-
-        // Evitar que las columnas se reordenen
         tablaAlbum.getTableHeader().setReorderingAllowed(false);
 
-        // Deshabilitar la modificación del tamaño de las columnas
-        for (int i = 0; i < tablaAlbum.getColumnModel().getColumnCount(); i++) {
-            tablaAlbum.getColumnModel().getColumn(i).setResizable(false);
-        }
-
-        // Configurar alineaciones específicas para cada columna
+        // Configurar render personalizado
         RenderCeldas render = new RenderCeldas(tablaAlbum);
         render.setColumnAlignment(0, SwingConstants.CENTER); // Imagen centrada
         render.setColumnAlignment(1, SwingConstants.CENTER); // Nombre centrado
         render.setColumnAlignment(2, SwingConstants.LEFT);   // Artista a la izquierda
 
-        // Configurar colores y apariencia de la tabla
-        tablaAlbum.setBackground(new Color(35, 58, 68)); // Fondo oscuro
-        tablaAlbum.setForeground(Color.WHITE);           // Texto blanco
-        tablaAlbum.setRowHeight(50);                     // Altura de las filas
-        tablaAlbum.setSelectionBackground(new Color(58, 107, 128)); // Fondo de selección
-        tablaAlbum.setSelectionForeground(Color.WHITE);             // Texto de selección
-        tablaAlbum.setShowHorizontalLines(true);        // Mostrar líneas horizontales
-        tablaAlbum.setShowVerticalLines(false);         // Ocultar líneas verticales
-        tablaAlbum.setGridColor(new Color(255, 255, 255, 50)); // Color de las líneas de cuadrícula
-
-        // Configurar el header de la tabla con el color específico y centrado
+        // Configurar colores y estilos
+        tablaAlbum.setBackground(new Color(35, 58, 68));
+        tablaAlbum.setForeground(Color.WHITE);
+        tablaAlbum.setRowHeight(50);
+        tablaAlbum.setSelectionBackground(new Color(58, 107, 128));
+        tablaAlbum.setSelectionForeground(Color.WHITE);
         tablaAlbum.getTableHeader().setBackground(new Color(35, 58, 68));
         tablaAlbum.getTableHeader().setForeground(Color.WHITE);
+        tablaAlbum.setShowHorizontalLines(true);
+        tablaAlbum.setShowVerticalLines(false);
+        tablaAlbum.setGridColor(new Color(255, 255, 255, 50));
 
-        // Configurar el scroll pane
+        // Configurar columnas
+        tablaAlbum.getColumnModel().getColumn(0).setPreferredWidth(100);
+        tablaAlbum.getColumnModel().getColumn(1).setPreferredWidth(200);
+        tablaAlbum.getColumnModel().getColumn(2).setPreferredWidth(150);
+
+        // Configurar scroll pane
         jScrollPane1.setBorder(null);
         jScrollPane1.getViewport().setBackground(new Color(35, 58, 68));
 
-        // Ajustar las posiciones para evitar la superposición
-        jScrollPane1.setBounds(menuDesplegablePanel.getWidth(), jScrollPane1.getY(),
-                getWidth() - menuDesplegablePanel.getWidth(), jScrollPane1.getHeight());
+        cargarDatosDeLaBaseDeDatos(modelo);
+    }
 
-        // Ajustar el ancho de las columnas
-        tablaAlbum.getColumnModel().getColumn(0).setPreferredWidth(200); // Imagen
-        tablaAlbum.getColumnModel().getColumn(1).setPreferredWidth(150); // Nombre
-        tablaAlbum.getColumnModel().getColumn(2).setPreferredWidth(100); // Artista
+    private ImageIcon cargarImagen(String nombreImagen) {
+        try {
+            if (nombreImagen == null || nombreImagen.trim().isEmpty()) {
+                return crearImagenPorDefecto();
+            }
+
+            String rutaCompleta = "src/ImagenesAlbum/" + nombreImagen;
+            File archivoImagen = new File(rutaCompleta);
+
+            if (!archivoImagen.exists()) {
+                System.err.println("Imagen no encontrada: " + rutaCompleta);
+                return crearImagenPorDefecto();
+            }
+
+            ImageIcon originalIcon = new ImageIcon(rutaCompleta);
+            if (originalIcon.getIconWidth() <= 0) {
+                return crearImagenPorDefecto();
+            }
+
+            Image scaledImage = originalIcon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+            return new ImageIcon(scaledImage);
+
+        } catch (Exception e) {
+            System.err.println("Error al cargar imagen: " + nombreImagen);
+            e.printStackTrace();
+            return crearImagenPorDefecto();
+        }
+    }
+
+    private ImageIcon crearImagenPorDefecto() {
+        BufferedImage placeholderImage = new BufferedImage(50, 50, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = placeholderImage.createGraphics();
+
+        g2d.setColor(new Color(200, 200, 200));
+        g2d.fillRect(0, 0, 50, 50);
+        g2d.setColor(Color.DARK_GRAY);
+        g2d.drawRect(0, 0, 49, 49);
+        g2d.setColor(Color.BLACK);
+        g2d.setFont(new Font("Arial", Font.BOLD, 10));
+        g2d.drawString("No Image", 5, 30);
+        g2d.dispose();
+
+        return new ImageIcon(placeholderImage);
+    }
+
+    private void cargarDatosDeLaBaseDeDatos(DefaultTableModel modelo) {
+        try {
+            List<AlbumVistaDTO> albumes = obtenerAlbumes.BuscarPorFiltro(null, null, null);
+            this.albumes = albumes;
+
+            System.out.println("Número de álbumes encontrados: " + albumes.size());
+
+            modelo.setRowCount(0);
+
+            for (AlbumVistaDTO album : albumes) {
+                System.out.println("Álbum: " + album.getNombre()
+                        + ", Artista: " + album.getArtistaVista().getNombre()
+                        + ", Imagen: " + album.getImagen());
+
+                ImageIcon imagen = cargarImagen(album.getImagen());
+
+                modelo.addRow(new Object[]{
+                    imagen,
+                    album.getNombre(),
+                    album.getArtistaVista().getNombre()
+                });
+            }
+
+            System.out.println("Filas añadidas a la tabla: " + modelo.getRowCount());
+        } catch (BOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Error al cargar álbumes favoritos: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -116,6 +234,7 @@ public class AlbumFavorito extends javax.swing.JFrame {
         busqueda = new javax.swing.JTextField();
         buscarBtn = new javax.swing.JButton();
         menuBtn = new javax.swing.JButton();
+        generoFiltro = new javax.swing.JComboBox<>();
         panelInformacionAlbum = new controlador.PanelRound();
         panelRound5 = new controlador.PanelRound();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -144,6 +263,7 @@ public class AlbumFavorito extends javax.swing.JFrame {
         albumFavLb.setForeground(new java.awt.Color(255, 255, 255));
         albumFavLb.setText("Album Favoritos");
         albumFavLb.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        albumFavLb.setEnabled(false);
         albumFavLb.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 albumFavLbMouseClicked(evt);
@@ -253,7 +373,7 @@ public class AlbumFavorito extends javax.swing.JFrame {
 
         jLabel1.setFont(new java.awt.Font("OCR A Extended", 0, 36)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("Principal");
+        jLabel1.setText("Albums Favoritos");
 
         panelRound3.setBackground(new java.awt.Color(35, 58, 68));
         panelRound3.setCursorHandEnabled(true);
@@ -310,6 +430,10 @@ public class AlbumFavorito extends javax.swing.JFrame {
             }
         });
 
+        generoFiltro.setBackground(new java.awt.Color(35, 58, 68));
+        generoFiltro.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
+        generoFiltro.setForeground(new java.awt.Color(255, 255, 255));
+
         javax.swing.GroupLayout panelRound1Layout = new javax.swing.GroupLayout(panelRound1);
         panelRound1.setLayout(panelRound1Layout);
         panelRound1Layout.setHorizontalGroup(
@@ -318,8 +442,10 @@ public class AlbumFavorito extends javax.swing.JFrame {
                 .addGap(19, 19, 19)
                 .addComponent(menuBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(37, 37, 37)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 514, Short.MAX_VALUE)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 396, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 126, Short.MAX_VALUE)
+                .addComponent(generoFiltro, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(28, 28, 28)
                 .addComponent(panelRound3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(127, 127, 127))
         );
@@ -332,7 +458,9 @@ public class AlbumFavorito extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(generoFiltro, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(panelRound3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(45, 45, 45))
         );
@@ -418,11 +546,13 @@ public class AlbumFavorito extends javax.swing.JFrame {
     }//GEN-LAST:event_buscarBtnActionPerformed
 
     private void perfilLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_perfilLbMouseClicked
-        // TODO add your handling code here:
+        dispose();
+        new ActualizarUsuario().setVisible(true);
     }//GEN-LAST:event_perfilLbMouseClicked
 
     private void artistasFavLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_artistasFavLbMouseClicked
-        // TODO add your handling code here:
+        dispose();
+        new ArtistaFavorito().setVisible(true);
     }//GEN-LAST:event_artistasFavLbMouseClicked
 
     private void menuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBtnActionPerformed
@@ -452,32 +582,36 @@ public class AlbumFavorito extends javax.swing.JFrame {
     }//GEN-LAST:event_menuBtnActionPerformed
 
     private void artistaLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_artistaLbMouseClicked
-        // TODO add your handling code here:
+        dispose();
+        new Artista().setVisible(true);
     }//GEN-LAST:event_artistaLbMouseClicked
 
     private void albumFavLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_albumFavLbMouseClicked
-        // TODO add your handling code here:
+
+        dispose();
+        new AlbumFavorito().setVisible(true);
     }//GEN-LAST:event_albumFavLbMouseClicked
 
     private void albumLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_albumLbMouseClicked
-        // TODO add your handling code here:
+        dispose();
+        new Principal().setVisible(true);
     }//GEN-LAST:event_albumLbMouseClicked
 
     private void salirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_salirMouseClicked
-        // TODO add your handling code here:
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro que desea salir?",
+                "Confirmar Salida",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            dispose(); // Properly dispose of the window instead of System.exit(0)
+            System.exit(0);
+        }
     }//GEN-LAST:event_salirMouseClicked
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new AlbumFavorito().setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Fondo;
@@ -487,6 +621,7 @@ public class AlbumFavorito extends javax.swing.JFrame {
     private javax.swing.JLabel artistasFavLb;
     private javax.swing.JButton buscarBtn;
     private javax.swing.JTextField busqueda;
+    private javax.swing.JComboBox<String> generoFiltro;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
