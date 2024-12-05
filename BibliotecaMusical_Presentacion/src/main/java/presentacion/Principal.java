@@ -4,12 +4,15 @@
  */
 package presentacion;
 
+import com.bdm.excepciones.DAOException;
 import java.awt.Graphics2D;
 import com.bmd.entities.Usuario;
+import com.bmn.dto.AlbumDTO;
 import com.bmn.dto.AlbumVistaDTO;
 import com.bmn.dto.constantes.Genero;
 import com.bmn.excepciones.BOException;
 import com.bmn.factories.BOFactory;
+import com.bmn.negocio.ObtenerAlbumBO;
 import com.bmn.negocio.ObtenerAlbumesFiltradosBO;
 import com.bmn.singletonUsuario.UsuarioST;
 import controlador.RenderCeldas;
@@ -20,6 +23,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.swing.table.TableRowSorter;
+import org.bson.types.ObjectId;
 
 /**
  *
@@ -105,8 +109,69 @@ public class Principal extends javax.swing.JFrame {
         tablaAlbum.getColumnModel().getColumn(0).setPreferredWidth(100);  // Imagen
         tablaAlbum.getColumnModel().getColumn(1).setPreferredWidth(200);  // Nombre
         tablaAlbum.getColumnModel().getColumn(2).setPreferredWidth(150);  // Artista
-
+        configurarSeleccionTabla();
         cargarDatosDeLaBaseDeDatos(modelo);
+    }
+
+    private void configurarSeleccionTabla() {
+        tablaAlbum.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int selectedRow = tablaAlbum.getSelectedRow();
+                if (selectedRow >= 0) {
+                    try {
+                        int modelRow = tablaAlbum.convertRowIndexToModel(selectedRow);
+                        AlbumVistaDTO albumVista = albumes.get(modelRow);
+
+                        ObtenerAlbumBO albumBO = BOFactory.obtenerAlbumFactory();
+                        // Get just the string ID from the usuario object
+                        AlbumDTO albumDetallado = albumBO.obtenerAlbum(albumVista.getId());
+
+                        actualizarPanelInformacion(albumDetallado);
+                    } catch (BOException | NullPointerException ex) {
+                        JOptionPane.showMessageDialog(this,
+                                "Error al cargar detalles del álbum: " + ex.getMessage(),
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
+    }
+
+    private void verificarFavorito(AlbumDTO album, String idUsuario) throws BOException {
+
+        ObjectId idAlbum = new ObjectId(album.getId());
+        // Fix: Extract just the ID string from Usuario object
+        ObjectId idUser = new ObjectId(UsuarioST.getInstance().getId().toString());
+
+    }
+
+    private void actualizarPanelInformacion(AlbumDTO album) {
+        ImageIcon albumIcon = cargarImagen(album.getImagenPortada());
+        if (albumIcon != null) {
+            Image scaled = albumIcon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+            imagenAlbum.setIcon(new ImageIcon(scaled));
+        }
+
+        nombreDelAlbumTxt.setText(album.getNombre());
+        nombreArtistaTxt.setText(album.getArtista().getNombre());
+
+        DefaultTableModel modeloCanciones = new DefaultTableModel(
+                new String[]{"Título", "Favorito"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        album.getCanciones().forEach(cancion -> {
+            modeloCanciones.addRow(new Object[]{
+                cancion.getNombre(),
+                cancion.isFavorito() ? "★" : "☆"
+            });
+        });
+
+        cancionesDelAlbum.setModel(modeloCanciones);
     }
 
     private void cargarComboBox() {
@@ -773,7 +838,7 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_artistaLbMouseClicked
 
     private void albumFavLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_albumFavLbMouseClicked
-      
+
     }//GEN-LAST:event_albumFavLbMouseClicked
 
     private void salirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_salirMouseClicked
