@@ -189,7 +189,7 @@ public class Principal extends javax.swing.JFrame {
             nombreDelAlbumTxt.setText("");
             nombreArtistaTxt.setText("");
             fechaLanzamientoTxt.setText("");
-            generoTxt.setText("");
+            generoTxt.setText("Sin género");  // Direct text when album is null
 
             // Clear songs table
             DefaultTableModel modeloCanciones = (DefaultTableModel) cancionesDelAlbum.getModel();
@@ -253,29 +253,38 @@ public class Principal extends javax.swing.JFrame {
                 boolean nuevoEstado = (boolean) cancionesDelAlbum.getValueAt(row, 1);
 
                 try {
-                    // Create FavoritoDTO
+                    // Check if album or its genre is null
+                    if (album == null) {
+                        throw new BOException("El álbum no puede ser nulo");
+                    }
+                    if (album.getGenero() == null) {
+                        // Revert checkbox state
+                        SwingUtilities.invokeLater(() -> {
+                            cancionesDelAlbum.setValueAt(!nuevoEstado, row, 1);
+                            JOptionPane.showMessageDialog(this,
+                                    "No se puede marcar como favorito: El género del álbum es requerido",
+                                    "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        });
+                        return;
+                    }
+
                     FavoritoDTO favoritoDTO = new FavoritoDTO.Builder()
                             .setIdUsuario(UsuarioST.getInstance().getId())
                             .setIdReferencia(album.getId())
                             .setNombreCancion(nombreCancion)
                             .setGenero(album.getGenero())
-                            .setTipo(CANCION) // Assuming you have a TipoFavorito enum
+                            .setTipo(CANCION)
                             .setFechaAgregacion(LocalDate.now())
                             .build();
 
-                    // Use the BO to add/remove favorite
                     agregarFavoritoBO.agregarCancionFavorita(favoritoDTO);
-
-                    // Update the album DTO to reflect the change
                     album.getCanciones().get(row).setFavorito(nuevoEstado);
                 } catch (BOException ex) {
-                    // Revert the checkbox state
                     SwingUtilities.invokeLater(() -> {
                         cancionesDelAlbum.setValueAt(!nuevoEstado, row, 1);
-
-                        // Show error dialog
                         JOptionPane.showMessageDialog(this,
-                                "No se pudo actualizar el estado de favorito: " + ex.getMessage(),
+                                "Error al modificar favoritos: " + ex.getMessage(),
                                 "Error",
                                 JOptionPane.ERROR_MESSAGE);
                     });
@@ -290,39 +299,38 @@ public class Principal extends javax.swing.JFrame {
         } else {
             agregarFavoritoAlbumBtn.setBackground(new Color(58, 107, 128)); // Default color
             agregarFavoritoAlbumBtn.setText("Agregar a Favoritos");
-        }
+        } // Add action listener to toggle favorite status
+        agregarFavoritoAlbumBtn
+                .addActionListener(e -> {
+                    try {
+                        FavoritoDTO favoritoDTO = new FavoritoDTO.Builder()
+                                .setIdUsuario(UsuarioST.getInstance().getId())
+                                .setIdReferencia(album.getId())
+                                .setTipo(ALBUM)
+                                .setGenero(album.getGenero())
+                                .setFechaAgregacion(LocalDate.now())
+                                .build();
 
-        // Add action listener to toggle favorite status
-        agregarFavoritoAlbumBtn.addActionListener(e -> {
-            try {
-                FavoritoDTO favoritoDTO = new FavoritoDTO.Builder()
-                        .setIdUsuario(UsuarioST.getInstance().getId())
-                        .setIdReferencia(album.getId())
-                        .setTipo(ALBUM)
-                        .setGenero(album.getGenero())
-                        .setFechaAgregacion(LocalDate.now())
-                        .build();
+                        if (album.isFavorito()) {
+                            // Remove from favorites
 
-                if (album.isFavorito()) {
-                    // Remove from favorites
-
-                    AgregarFavoritoBO agregarFavoritoBO = BOFactory.agregarFavoritoFactory();
-                    agregarFavoritoBO.agregarFavorito(favoritoDTO);
-                    album.setFavorito(false);
-                } else {
-                    // Add to favorites
-                    AgregarFavoritoBO agregarFavoritoBO = BOFactory.agregarFavoritoFactory();
-                    agregarFavoritoBO.agregarFavorito(favoritoDTO);
-                    album.setFavorito(true);
-                }
-                actualizarPanelInformacion(album);
-            } catch (BOException ex) {
-                JOptionPane.showMessageDialog(this,
-                        "Error al modificar favoritos: " + ex.getMessage(),
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE);
-            }
-        });
+                            AgregarFavoritoBO agregarFavoritoBO = BOFactory.agregarFavoritoFactory();
+                            agregarFavoritoBO.agregarFavorito(favoritoDTO);
+                            album.setFavorito(false);
+                        } else {
+                            // Add to favorites
+                            AgregarFavoritoBO agregarFavoritoBO = BOFactory.agregarFavoritoFactory();
+                            agregarFavoritoBO.agregarFavorito(favoritoDTO);
+                            album.setFavorito(true);
+                        }
+                        actualizarPanelInformacion(album);
+                    } catch (BOException ex) {
+                        JOptionPane.showMessageDialog(this,
+                                "Error al modificar favoritos: " + ex.getMessage(),
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                });
     }
 
     private void cargarComboBox() {

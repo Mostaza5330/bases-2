@@ -17,14 +17,11 @@ import javax.swing.*;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.stream.Collectors;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 /**
  *
@@ -32,7 +29,6 @@ import javax.swing.event.DocumentListener;
  */
 public class AlbumFavorito extends javax.swing.JFrame {
 
-    private boolean isMenuVisible = true;
     private Usuario usuarioActual;
     private List<AlbumVistaDTO> albumes;
     private ObtenerAlbumesFavoritosBO obtenerAlbumes;
@@ -242,6 +238,7 @@ public class AlbumFavorito extends javax.swing.JFrame {
 
         // Reload all albums
         cargarDatosDeLaBaseDeDatos((DefaultTableModel) tablaAlbumFavoritos.getModel());
+
     }
 
     private ImageIcon cargarImagen(String nombreImagen) {

@@ -24,6 +24,7 @@ presentacion\AlbumFavorito$10.class
 presentacion\CancionesFavoritas$1.class
 controlador\TableHeaderAlignment.class
 presentacion\AlbumFavorito$5.class
+presentacion\Artista$13.class
 presentacion\Baneado.class
 presentacion\Inicio$4.class
 presentacion\Inicio$1.class
@@ -35,8 +36,8 @@ presentacion\Principal$4.class
 presentacion\AlbumFavorito$8.class
 presentacion\ArtistaFavorito.class
 presentacion\ActualizarUsuario.class
-presentacion\Baneado$11.class
 presentacion\Baneado$10.class
+presentacion\Artista$15.class
 presentacion\AlbumFavorito$7.class
 presentacion\ActualizarUsuario$3.class
 presentacion\ArtistaFavorito$9.class
@@ -45,6 +46,7 @@ presentacion\Principal$1.class
 presentacion\Baneado$8.class
 controlador\PanelRound.class
 presentacion\Inicio$3.class
+presentacion\Artista$14.class
 presentacion\ArtistaFavorito$8.class
 presentacion\Inicio.class
 presentacion\Artista$9.class
@@ -69,6 +71,7 @@ controlador\PanelRound$1.class
 presentacion\CancionesFavoritas$3.class
 Main.class
 presentacion\Baneado$6.class
+presentacion\Artista$12.class
 presentacion\ArtistaFavorito$6.class
 javaswingdev\pggb\PanelGlowingGradient.class
 presentacion\Artista$11.class
