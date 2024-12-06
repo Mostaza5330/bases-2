@@ -59,7 +59,7 @@ public class UsuarioDAO implements IUsuarioDAO {
             Usuario usuario = collection.find(eq("correo", correo)).first();
             return usuario;
         } catch (Exception e) {
-            throw new DAOException("Error al buscar el usuario por correo", e);
+            throw new DAOException("Error en correo o contraseña", e);
         }
     }
 

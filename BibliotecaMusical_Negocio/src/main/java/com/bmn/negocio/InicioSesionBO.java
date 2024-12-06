@@ -60,7 +60,7 @@ public class InicioSesionBO implements IInicioSesionBO {
     public void verificarContrasena(UsuarioIniciarSesionDTO usuario) throws BOException {
         if (!hasher.verifyPassword(usuario.getContrasena(), 
                 usuario.getContrasenaObtenida())) {
-            throw new BOException("La contaseña no puede estar vacia.");
+            throw new BOException("Error en correo o contraseña.");
         }
     }
     

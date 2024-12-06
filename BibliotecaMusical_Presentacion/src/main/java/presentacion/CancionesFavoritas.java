@@ -5,13 +5,11 @@ import com.bmn.dto.constantes.Genero;
 import com.bmn.excepciones.BOException;
 import com.bmn.factories.BOFactory;
 import com.bmn.negocio.ObtenerCancionesFavoritasBO;
-import com.bmn.negocio.ObtenerRestringidosBO;
-import controlador.RenderCeldas;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
-import java.awt.*;
-import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -29,34 +27,27 @@ public class CancionesFavoritas extends javax.swing.JFrame {
     private List<FavoritoDTO> favoritos;
 
     public CancionesFavoritas() {
-        try {
-            
-            ObtenerCancionesFavoritasBO favrourite = BOFactory.obtenerCancionesFavoritosFactory();
-            
-            this.favoritos = favrourite.obtenerCancionesFavoritas(null, null);
-            
+//        try {
             // Inicializar componentes gráficos
             initComponents();
 
-            // Cargar tabla
-            cargarTablaloadTable();
+            cargarInstancias();
             
-            // Configurar tabla para mostrar géneros restringidos
-            configurarTabla();
-
-            // Cargar los géneros restringidos
-            cargarGenerosRestringidos();
+            if (this.favoritos != null) {
+                // Cargar tabla
+                cargarTablaloadTable();
+            }
             
             //cargamos el comboBox
             cargarComboBox();
             
-        } catch (Exception e) {
-            // Manejo de excepciones generales
-            JOptionPane.showMessageDialog(this,
-                    "Error al inicializar la ventana de géneros restringidos: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
+//        } catch (Exception e) {
+//            // Manejo de excepciones generales
+//            JOptionPane.showMessageDialog(this,
+//                    "Error al inicializar la ventana de géneros restringidos: " + e.getMessage(),
+//                    "Error",
+//                    JOptionPane.ERROR_MESSAGE);
+//        }
     }
 
     private void cargarInstancias(){
@@ -64,6 +55,11 @@ public class CancionesFavoritas extends javax.swing.JFrame {
         ObtenerCancionesFavoritasBO favrourite = BOFactory.obtenerCancionesFavoritosFactory();
             
         this.favoritos = favrourite.obtenerCancionesFavoritas(null, null);
+        
+            if (this.favoritos == null) {
+                System.out.println("no cargo ninguna cancion");
+            }
+        
         }
         catch(BOException ex){
             JOptionPane.showMessageDialog(this, 
@@ -84,7 +80,7 @@ public class CancionesFavoritas extends javax.swing.JFrame {
             for (FavoritoDTO favorito : cancionesFavoritas) {
                 Object[] object = {
                     favorito.getNombreCancion(),
-                    favorito.getGenero(),
+                    favorito.getGenero().name(),
                     favorito.getFechaAgregacion()
                 };
                 tableModel.addRow(object);
@@ -100,78 +96,10 @@ public class CancionesFavoritas extends javax.swing.JFrame {
                     JOptionPane.ERROR_MESSAGE);
         }
     }
-    
-    private void configurarTabla() {
-        modeloTabla = new DefaultTableModel(new String[]{"GÉNERO RESTRINGIDO"}, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false; // Hacer la tabla no editable
-            }
-        };
-        tablaBaneado.setModel(modeloTabla);
-        // Configurar render personalizado
-        RenderCeldas render = new RenderCeldas(tablaBaneado);
-        render.setColumnAlignment(0, SwingConstants.CENTER);
-        // Configurar colores y estilos
-        tablaBaneado.setBackground(new Color(35, 58, 68));
-        tablaBaneado.setForeground(Color.WHITE);
-        tablaBaneado.setRowHeight(50);
-        tablaBaneado.setSelectionBackground(new Color(58, 107, 128));
-        tablaBaneado.setSelectionForeground(Color.WHITE);
-        tablaBaneado.getTableHeader().setBackground(new Color(35, 58, 68));
-        tablaBaneado.getTableHeader().setForeground(Color.WHITE);
-    }
-
-    private void cargarGenerosRestringidos() {
-        try {
-            // Usar ObtenerRestringidosBO para obtener los géneros restringidos
-            ObtenerRestringidosBO obtenerRestringidos = BOFactory.obtenerRestringidosFactory();
-
-            generosRestringidos = obtenerRestringidos.obtenerRestringidos();
-
-            // Limpiar modelo de tabla existente
-            modeloTabla.setRowCount(0);
-
-            // Iterar sobre los géneros restringidos y agregarlos a la tabla
-            for (Genero genero : generosRestringidos) {
-                modeloTabla.addRow(new Object[]{genero.name()});
-            }
-
-            // Mensaje de depuración
-            System.out.println("Géneros restringidos encontrados: " + generosRestringidos.size());
-        } catch (BOException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this,
-                    "Error al cargar géneros restringidos: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    // Método getter para obtener los géneros restringidos
-    public List<Genero> getGenerosRestringidos() {
-        return generosRestringidos;
-    }
-    
     private void cargarComboBox() {
         for (Genero genero : Genero.values()) {
-            generoSinBan.addItem(genero.name());
+            cbxGeneros.addItem(genero.name());
         }
-    }
-
-    private void buscarGenero(String texto) {
-        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(modeloTabla);
-        tablaBaneado.setRowSorter(sorter);
-
-        if (texto.isEmpty()) {
-            sorter.setRowFilter(null);
-            return;
-        }
-
-        RowFilter<DefaultTableModel, Object> filter = RowFilter.regexFilter(
-                "(?i)" + texto, 0
-        ); // Buscar en la columna de géneros
-        sorter.setRowFilter(filter);
     }
 
     @SuppressWarnings("unchecked")
@@ -204,9 +132,9 @@ public class CancionesFavoritas extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         panelInformacionAlbum = new controlador.PanelRound();
         jLabel2 = new javax.swing.JLabel();
-        generoSinBan = new javax.swing.JComboBox<>();
+        cbxGeneros = new javax.swing.JComboBox<>();
         quitarBaneoBtn = new javax.swing.JButton();
-        jDateChooser1 = new com.toedter.calendar.JDateChooser();
+        dcFecha = new com.toedter.calendar.JDateChooser();
         btnLimpiar = new javax.swing.JButton();
 
         menuDesplegablePanel.setBackground(new java.awt.Color(58, 107, 128));
@@ -416,30 +344,15 @@ public class CancionesFavoritas extends javax.swing.JFrame {
         tablaBaneado.setBackground(new java.awt.Color(35, 58, 68));
         tablaBaneado.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+                {},
+                {},
+                {},
+                {}
             },
             new String [] {
-                "Genero", "Fecha", "Nombre"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.Object.class, java.lang.String.class
-            };
-            boolean[] canEdit = new boolean [] {
-                false, false, false
-            };
 
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
             }
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
+        ));
         tablaBaneado.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         tablaBaneado.setGridColor(new java.awt.Color(35, 58, 68));
         tablaBaneado.setSelectionBackground(new java.awt.Color(35, 58, 68));
@@ -487,13 +400,14 @@ public class CancionesFavoritas extends javax.swing.JFrame {
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Filtros");
 
-        generoSinBan.setBackground(new java.awt.Color(58, 107, 128));
-        generoSinBan.setEditable(true);
-        generoSinBan.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
-        generoSinBan.setForeground(new java.awt.Color(255, 255, 255));
-        generoSinBan.addActionListener(new java.awt.event.ActionListener() {
+        cbxGeneros.setBackground(new java.awt.Color(58, 107, 128));
+        cbxGeneros.setEditable(true);
+        cbxGeneros.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
+        cbxGeneros.setForeground(new java.awt.Color(255, 255, 255));
+        cbxGeneros.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "None" }));
+        cbxGeneros.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                generoSinBanActionPerformed(evt);
+                cbxGenerosActionPerformed(evt);
             }
         });
 
@@ -501,8 +415,18 @@ public class CancionesFavoritas extends javax.swing.JFrame {
         quitarBaneoBtn.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
         quitarBaneoBtn.setForeground(new java.awt.Color(255, 255, 255));
         quitarBaneoBtn.setText("Buscar");
+        quitarBaneoBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                quitarBaneoBtnActionPerformed(evt);
+            }
+        });
 
         btnLimpiar.setText("Limpiar");
+        btnLimpiar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLimpiarActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout panelInformacionAlbumLayout = new javax.swing.GroupLayout(panelInformacionAlbum);
         panelInformacionAlbum.setLayout(panelInformacionAlbumLayout);
@@ -510,9 +434,9 @@ public class CancionesFavoritas extends javax.swing.JFrame {
             panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
                 .addGap(86, 86, 86)
-                .addComponent(generoSinBan, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(cbxGeneros, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(77, 77, 77)
-                .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(dcFecha, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelInformacionAlbumLayout.createSequentialGroup()
                 .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -538,8 +462,8 @@ public class CancionesFavoritas extends javax.swing.JFrame {
                         .addComponent(btnLimpiar)))
                 .addGap(35, 35, 35)
                 .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(generoSinBan, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)
-                    .addComponent(jDateChooser1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(cbxGeneros, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)
+                    .addComponent(dcFecha, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(57, 57, 57)
                 .addComponent(quitarBaneoBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(8, Short.MAX_VALUE))
@@ -609,9 +533,83 @@ public class CancionesFavoritas extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_artistaLb2MouseClicked
 
-    private void generoSinBanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generoSinBanActionPerformed
+    private void cbxGenerosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxGenerosActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_generoSinBanActionPerformed
+    }//GEN-LAST:event_cbxGenerosActionPerformed
+
+    private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
+        try{
+            //limpiamos el selector de fechas
+            this.dcFecha.setDate(null);
+
+            ObtenerCancionesFavoritasBO favrourite = BOFactory.obtenerCancionesFavoritosFactory();
+
+            this.favoritos = favrourite.obtenerCancionesFavoritas(null, null);
+            
+            if (this.favoritos != null ) {
+                  // Actualizamos la tabla con lo obtenido
+                  cargarTablaloadTable();
+            } 
+
+        }
+        catch(BOException ex){
+            JOptionPane.showMessageDialog(this, 
+                    "Error al cargar las canciones: " + 
+                    ex.getMessage(),
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        
+    }//GEN-LAST:event_btnLimpiarActionPerformed
+
+    private void quitarBaneoBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quitarBaneoBtnActionPerformed
+          try {
+            // Limpiamos el selector de fechas
+            this.dcFecha.setDate(null);
+
+            // Convertir la fecha a LocalDate si no es nula
+            LocalDate localDate = (dcFecha.getDate() != null) 
+                    ? dcFecha.getDate().toInstant()
+                          .atZone(ZoneId.systemDefault())
+                          .toLocalDate() 
+                    : null;
+
+            // Obtenemos el género seleccionado
+            String selected = (String) this.cbxGeneros.getSelectedItem();
+
+            // Declaramos el género y validamos selección
+            Genero genero = null;
+
+            if (selected != null && !selected.equalsIgnoreCase("None")) {
+                try {
+                    genero = Genero.valueOf(selected); // Convierte el string al enum
+                } catch (IllegalArgumentException ex) {
+                    return; // Salimos del método si el género no es válido
+                }
+            }
+
+              System.out.println(genero.name());
+            
+            // Usamos la búsqueda filtrada
+            ObtenerCancionesFavoritasBO favourite = BOFactory.obtenerCancionesFavoritosFactory();
+
+            // Actualizamos la variable local con lo obtenido
+            this.favoritos = favourite.obtenerCancionesFavoritas(Genero.Pop, null);
+
+
+              if (this.favoritos != null ) {
+                  // Actualizamos la tabla con lo obtenido
+                  cargarTablaloadTable();
+              } 
+              
+        } 
+        catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, 
+                    "Error al cargar las canciones: " + ex.getMessage(),
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_quitarBaneoBtnActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Fondo;
@@ -622,8 +620,8 @@ public class CancionesFavoritas extends javax.swing.JFrame {
     private javax.swing.JLabel artistaLb2;
     private javax.swing.JLabel artistasFavLb;
     private javax.swing.JButton btnLimpiar;
-    private javax.swing.JComboBox<String> generoSinBan;
-    private com.toedter.calendar.JDateChooser jDateChooser1;
+    private javax.swing.JComboBox<String> cbxGeneros;
+    private com.toedter.calendar.JDateChooser dcFecha;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

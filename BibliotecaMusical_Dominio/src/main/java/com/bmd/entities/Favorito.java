@@ -88,10 +88,13 @@ public class Favorito {
 
     @Override
     public String toString() {
-        return "Favorito{" + "idUsuario=" + idUsuario + 
-                ", idReferencia=" + idReferencia + ", tipo=" + tipo + 
-                ", fechaAgregacion=" + fechaAgregacion + '}';
+        return "Favorito{" + "idUsuario=" + idUsuario + ", idReferencia=" + 
+                idReferencia + ", tipo=" + tipo + ", genero=" + genero + 
+                ", nombreCancion=" + nombreCancion + ", fechaAgregacion=" + 
+                fechaAgregacion + '}';
     }
+
+    
     
     public static class Builder{
         

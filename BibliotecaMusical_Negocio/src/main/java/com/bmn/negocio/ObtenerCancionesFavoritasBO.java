@@ -69,6 +69,7 @@ public class ObtenerCancionesFavoritasBO implements IObtenerCancionesFavoritasBO
                 setIdReferencia(favoritoDTO.getIdReferencia().toString()).
                 setNombreCancion((favoritoDTO.getNombreCancion() == null) ? null : favoritoDTO.getNombreCancion()).
                 setTipo(Tipo.valueOf(favoritoDTO.getTipo())).
+                setGenero(Genero.valueOf(favoritoDTO.getGenero())).
                 setFechaAgregacion(favoritoDTO.getFechaAgregacion()).
                 build();
         return favorito;

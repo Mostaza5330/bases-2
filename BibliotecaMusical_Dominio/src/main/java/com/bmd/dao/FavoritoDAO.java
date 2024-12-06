@@ -278,7 +278,7 @@ public class FavoritoDAO implements IFavoritoDAO {
      * @return Lista de canciones favoritas filtrada.
      * @throws DAOException En caso de excepcion en la consulta.
      */
-    @Override
+   @Override
     public List<Favorito> obtenerCancionesFavoritas(String genero, LocalDate fechaAgregacion, ObjectId idUsuario) throws DAOException {
         try {
             // Obtener la colección de usuarios
@@ -304,34 +304,49 @@ public class FavoritoDAO implements IFavoritoDAO {
             // Inicializar la lista de canciones favoritas
             List<Favorito> cancionesFavoritas = new ArrayList<>();
 
-            System.out.println("si llego al iterador");
             // Iterar sobre los favoritos del usuario
-            if (cancionesFavoritas == null || cancionesFavoritas.isEmpty() ) {
-                return null;
-            }
-            else{
-                for (Favorito favorito : favoritos) {
-                System.out.println("Verificando favorito: " + favorito);
+            for (Favorito favorito : favoritos) {
 
-                // Verificar si el favorito es una canción y coincide con los criterios
-                if ("CANCION".equals(favorito.getTipo()) && 
-                    (genero == null || genero.isEmpty() || genero.equals(favorito.getGenero())) && 
-                    (fechaAgregacion == null || fechaAgregacion.equals(favorito.getFechaAgregacion()))) {
-
-                    cancionesFavoritas.add(favorito);
+                if (genero != null && fechaAgregacion != null) {
+                    if (favorito.getGenero().equalsIgnoreCase(genero) && 
+                            favorito.getFechaAgregacion().equals(fechaAgregacion) &&
+                            favorito.getTipo().equalsIgnoreCase("CANCION")) {
+                        cancionesFavoritas.add(favorito);
+                    }
                 }
-                
-                // Retornar la lista de canciones favoritas
-                return cancionesFavoritas;
+                else if (genero != null && fechaAgregacion == null) {
+                    if (favorito.getGenero().equalsIgnoreCase(genero) && 
+                            favorito.getTipo().equalsIgnoreCase("CANCION")) {
+                        cancionesFavoritas.add(favorito);
+                    }
+                }
+                else if (genero == null && fechaAgregacion != null) {
+                    if (favorito.getFechaAgregacion().equals(fechaAgregacion) &&
+                            favorito.getTipo().equalsIgnoreCase("CANCION")) {
+                        cancionesFavoritas.add(favorito);
+                    }
+                }
+                else if (genero == null && fechaAgregacion == null) {
+                    if (favorito.getTipo().equalsIgnoreCase("CANCION")) {
+                        cancionesFavoritas.add(favorito);
+                    }
+                } 
             }
-         }
-            
+
+            for (Favorito cancion : cancionesFavoritas) {
+                    System.out.println(cancion.toString());
+                }
+
+            return cancionesFavoritas;
+
+
         } catch (Exception e) {
             e.printStackTrace(); // Imprimir el stack trace para depuración
             throw new DAOException("Error al obtener las canciones favoritas", e);
         }
-        return null;
     }
+
+
 
 
   

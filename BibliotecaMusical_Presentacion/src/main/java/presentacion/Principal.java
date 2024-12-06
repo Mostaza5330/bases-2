@@ -258,6 +258,7 @@ public class Principal extends javax.swing.JFrame {
                             .setIdUsuario(UsuarioST.getInstance().getId())
                             .setIdReferencia(album.getId())
                             .setNombreCancion(nombreCancion)
+                            .setGenero(album.getGenero())
                             .setTipo(CANCION) // Assuming you have a TipoFavorito enum
                             .setFechaAgregacion(LocalDate.now())
                             .build();
