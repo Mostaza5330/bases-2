@@ -48,8 +48,10 @@ public class ObtenerAlbumesFiltradosBO implements IObtenerAlbumesFiltradosBO {
             
             String genero1 = (genero == null) ? null : genero.name();
             
+            LocalDate date = (fecha == null) ? null : fecha;
+            
             //lista traida de la base de datos;
-            List<Album> albumes = albumDAO.BuscarPorFiltro(nombre1, fecha, 
+            List<Album> albumes = albumDAO.BuscarPorFiltro(nombre1, date, 
                     genero1, idUsuario);
             List<AlbumVistaDTO> albumesDTO = new ArrayList<>();
             

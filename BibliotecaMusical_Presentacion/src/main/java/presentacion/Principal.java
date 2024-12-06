@@ -4,7 +4,6 @@
  */
 package presentacion;
 
-import com.bdm.excepciones.DAOException;
 import java.awt.Graphics2D;
 import com.bmd.entities.Usuario;
 import com.bmn.dto.AlbumDTO;
@@ -31,7 +30,7 @@ import org.bson.types.ObjectId;
  */
 public class Principal extends javax.swing.JFrame {
 
-    private boolean isMenuVisible = true;
+    private boolean isMenuVisible = false;
     private Usuario usuarioActual;
     private List<AlbumVistaDTO> albumes;
 
@@ -120,8 +119,9 @@ public class Principal extends javax.swing.JFrame {
                 if (selectedRow >= 0) {
                     try {
                         int modelRow = tablaAlbum.convertRowIndexToModel(selectedRow);
-                        AlbumVistaDTO albumVista = albumes.get(modelRow);
 
+                        AlbumVistaDTO albumVista = this.albumes.get(modelRow);
+                        
                         ObtenerAlbumBO albumBO = BOFactory.obtenerAlbumFactory();
                         // Get just the string ID from the usuario object
                         AlbumDTO albumDetallado = albumBO.obtenerAlbum(albumVista.getId());
@@ -292,6 +292,11 @@ public class Principal extends javax.swing.JFrame {
         return usuarioActual;
     }
 
+    
+    private void obtenerSeleccion(){
+        
+    }
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -338,6 +343,7 @@ public class Principal extends javax.swing.JFrame {
         Fondo.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         menuDesplegablePanel.setBackground(new java.awt.Color(58, 107, 128));
+        menuDesplegablePanel.setFocusable(false);
         menuDesplegablePanel.setPreferredSize(new java.awt.Dimension(290, 660));
 
         albumLb.setFont(new java.awt.Font("OCR A Extended", 0, 24)); // NOI18N
@@ -510,6 +516,11 @@ public class Principal extends javax.swing.JFrame {
         menuBtn.setBackground(new java.awt.Color(58, 107, 128));
         menuBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/media/menu.png"))); // NOI18N
         menuBtn.setBorder(null);
+        menuBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                menuBtnMouseClicked(evt);
+            }
+        });
         menuBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuBtnActionPerformed(evt);
@@ -574,13 +585,13 @@ public class Principal extends javax.swing.JFrame {
             ImagenAlbumPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ImagenAlbumPanelLayout.createSequentialGroup()
                 .addComponent(imagenAlbum)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 152, Short.MAX_VALUE))
         );
         ImagenAlbumPanelLayout.setVerticalGroup(
             ImagenAlbumPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ImagenAlbumPanelLayout.createSequentialGroup()
                 .addComponent(imagenAlbum)
-                .addGap(0, 119, Short.MAX_VALUE))
+                .addGap(0, 152, Short.MAX_VALUE))
         );
 
         nombreDelAlbumTxt.setBackground(new java.awt.Color(26, 26, 26));
@@ -594,20 +605,23 @@ public class Principal extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(nombreDelAlbumTxt, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)
-                    .addComponent(ImagenAlbumPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE))
-                .addContainerGap(18, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(34, 34, 34)
+                        .addComponent(nombreDelAlbumTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(ImagenAlbumPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(22, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(19, 19, 19)
-                .addComponent(ImagenAlbumPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addComponent(ImagenAlbumPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(nombreDelAlbumTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(12, Short.MAX_VALUE))
+                .addGap(22, 22, 22))
         );
 
         jLabel4.setFont(new java.awt.Font("OCR A Extended", 0, 36)); // NOI18N
@@ -657,8 +671,8 @@ public class Principal extends javax.swing.JFrame {
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(Canciones, javax.swing.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(Canciones, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 26, Short.MAX_VALUE))
         );
 
         nombreArtistaTxt.setEditable(false);
@@ -672,18 +686,14 @@ public class Principal extends javax.swing.JFrame {
         panelInformacionAlbumLayout.setHorizontalGroup(
             panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
-                .addGap(20, 20, 20)
+                .addGap(30, 30, 30)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
-                        .addGap(41, 41, 41)
-                        .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
-                        .addGap(47, 47, 47)
-                        .addComponent(nombreArtistaTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 299, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(58, Short.MAX_VALUE))
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(nombreArtistaTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 299, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(46, Short.MAX_VALUE))
             .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelInformacionAlbumLayout.createSequentialGroup()
                     .addContainerGap(183, Short.MAX_VALUE)
@@ -696,22 +706,21 @@ public class Principal extends javax.swing.JFrame {
                 .addGap(100, 100, 100)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(nombreArtistaTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelInformacionAlbumLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(48, 48, 48))
+                .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
+                        .addComponent(nombreArtistaTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(133, Short.MAX_VALUE))
             .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
                     .addGap(16, 16, 16)
                     .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(220, Short.MAX_VALUE)))
+                    .addContainerGap(410, Short.MAX_VALUE)))
         );
 
-        Fondo.add(panelInformacionAlbum, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 90, 590, 300));
+        Fondo.add(panelInformacionAlbum, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 90, 590, 490));
 
         panelRound5.setBackground(new java.awt.Color(35, 58, 68));
         panelRound5.setRoundBottomLeft(30);
@@ -797,28 +806,6 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_artistasFavLbMouseClicked
 
     private void menuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBtnActionPerformed
-        int panelWidth = menuDesplegablePanel.getWidth();
-        int targetX = isMenuVisible ? -panelWidth : 0; // Determina el objetivo según el estado
-        isMenuVisible = !isMenuVisible; // Alternar estado
-
-        // Desactivar tabla cuando el menú está visible
-        tablaAlbum.setEnabled(!isMenuVisible);
-
-        javax.swing.Timer timer = new javax.swing.Timer(15, new java.awt.event.ActionListener() {
-            int currentX = menuDesplegablePanel.getX();
-
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                if ((isMenuVisible && currentX < targetX) || (!isMenuVisible && currentX > targetX)) {
-                    currentX += isMenuVisible ? 15 : -15; // Mover según el estado
-                    menuDesplegablePanel.setLocation(currentX, menuDesplegablePanel.getY());
-                } else {
-                    ((javax.swing.Timer) e.getSource()).stop();
-                }
-            }
-        });
-
-        timer.start();
 
     }//GEN-LAST:event_menuBtnActionPerformed
 
@@ -855,6 +842,31 @@ public class Principal extends javax.swing.JFrame {
             System.exit(0);
         }
     }//GEN-LAST:event_salirMouseClicked
+
+    private void menuBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menuBtnMouseClicked
+        int panelWidth = menuDesplegablePanel.getWidth();
+        int targetX = isMenuVisible ? -panelWidth : 0; // Determina el objetivo según el estado
+        isMenuVisible = !isMenuVisible; // Alternar estado
+
+        // Desactivar tabla cuando el menú está visible
+        tablaAlbum.setEnabled(!isMenuVisible);
+
+        javax.swing.Timer timer = new javax.swing.Timer(15, new java.awt.event.ActionListener() {
+            int currentX = menuDesplegablePanel.getX();
+
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                if ((isMenuVisible && currentX < targetX) || (!isMenuVisible && currentX > targetX)) {
+                    currentX += isMenuVisible ? 15 : -15; // Mover según el estado
+                    menuDesplegablePanel.setLocation(currentX, menuDesplegablePanel.getY());
+                } else {
+                    ((javax.swing.Timer) e.getSource()).stop();
+                }
+            }
+        });
+
+        timer.start();
+    }//GEN-LAST:event_menuBtnMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane Canciones;

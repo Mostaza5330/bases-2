@@ -60,7 +60,7 @@ public class ObtenerAlbumBO implements IObtenerAlbumBO {
             }
             
             //obtenemos el id del usuario que se encuentra loggeado.
-            String usuarioId = UsuarioST.getInstance().toString();
+            ObjectId usuarioId = UsuarioST.getInstance().getId();
             
             //verificamos si el album es favorito
             verificarFavorito(albumDTO, usuarioId);
@@ -82,12 +82,11 @@ public class ObtenerAlbumBO implements IObtenerAlbumBO {
      * @param idUsuario
      * @throws BOException 
      */
-    private void verificarFavorito(AlbumDTO album, String idUsuario) throws BOException{
+    private void verificarFavorito(AlbumDTO album, ObjectId idUsuario) throws BOException{
         try{
             ObjectId idAlbum = new ObjectId(album.getId());
-            ObjectId idUser = new ObjectId(idUsuario);
             
-            if (favoritoDAO.isFavorito(idAlbum, idUser)) {
+            if (favoritoDAO.isFavorito(idAlbum, idUsuario)) {
                 album.setFavorito(true);
             }
             else{
@@ -105,10 +104,10 @@ public class ObtenerAlbumBO implements IObtenerAlbumBO {
      * @param idUsuario
      * @throws BOException 
      */
-    private void verificarCancionFavorita(AlbumDTO album, String idUsuario) throws BOException {
+    private void verificarCancionFavorita(AlbumDTO album, ObjectId idUsuario) throws BOException {
         try{
             ObjectId idAlbum = new ObjectId(album.getId());
-            ObjectId idUser = new ObjectId(idUsuario);
+            ObjectId idUser = idUsuario;
             
             
             for (CancionDTO cancion : album.getCanciones()) {
