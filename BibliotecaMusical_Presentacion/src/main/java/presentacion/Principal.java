@@ -299,6 +299,7 @@ public class Principal extends javax.swing.JFrame {
                         .setIdUsuario(UsuarioST.getInstance().getId())
                         .setIdReferencia(album.getId())
                         .setTipo(ALBUM)
+                        .setGenero(album.getGenero())
                         .setFechaAgregacion(LocalDate.now())
                         .build();
 
