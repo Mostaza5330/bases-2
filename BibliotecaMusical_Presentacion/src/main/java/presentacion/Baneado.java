@@ -96,7 +96,7 @@ public class Baneado extends javax.swing.JFrame {
     public List<Genero> getGenerosRestringidos() {
         return generosRestringidos;
     }
-
+    
     private void buscarGenero(String texto) {
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(modeloTabla);
         tablaBaneado.setRowSorter(sorter);
@@ -496,29 +496,9 @@ public class Baneado extends javax.swing.JFrame {
     }//GEN-LAST:event_artistasFavLbMouseClicked
 
     private void menuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBtnActionPerformed
-        int panelWidth = menuDesplegablePanel.getWidth();
-        int targetX = isMenuVisible ? -panelWidth : 0; // Determina el objetivo según el estado
-        isMenuVisible = !isMenuVisible; // Alternar estado
-
-        // Desactivar tabla cuando el menú está visible
-        tablaBaneado.setEnabled(!isMenuVisible);
-
-        javax.swing.Timer timer = new javax.swing.Timer(15, new java.awt.event.ActionListener() {
-            int currentX = menuDesplegablePanel.getX();
-
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                if ((isMenuVisible && currentX < targetX) || (!isMenuVisible && currentX > targetX)) {
-                    currentX += isMenuVisible ? 15 : -15; // Mover según el estado
-                    menuDesplegablePanel.setLocation(currentX, menuDesplegablePanel.getY());
-                } else {
-                    ((javax.swing.Timer) e.getSource()).stop();
-                }
-            }
-        });
-
-        timer.start();
-
+        dispose();
+        new Principal().setVisible(true);
+        
     }//GEN-LAST:event_menuBtnActionPerformed
 
     private void artistaLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_artistaLbMouseClicked

@@ -26,12 +26,13 @@ public class FavoritoDTO {
     }
 
     public FavoritoDTO(Builder builder){
-        this.idUsuario = builder.idUsuario;
-        this.idReferencia = builder.idReferencia;
-        this.nombreCancion = builder.nombreCancion;
-        this.tipo = builder.tipo;
-        this.fechaAgregacion = builder.fechaAgregacion;
-    }
+    this.idUsuario = builder.idUsuario;
+    this.idReferencia = builder.idReferencia;
+    this.nombreCancion = builder.nombreCancion;
+    this.tipo = builder.tipo;
+    this.genero = builder.genero; // Add this line
+    this.fechaAgregacion = builder.fechaAgregacion;
+}
     
 
     public ObjectId getIdUsuario() {
