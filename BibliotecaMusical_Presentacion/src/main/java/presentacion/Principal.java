@@ -444,8 +444,9 @@ public class Principal extends javax.swing.JFrame {
 
         albumLb.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
         albumLb.setForeground(new java.awt.Color(255, 255, 255));
-        albumLb.setText("Album");
+        albumLb.setText("      Album");
         albumLb.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        albumLb.setEnabled(false);
         albumLb.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 albumLbMouseClicked(evt);
@@ -466,7 +467,6 @@ public class Principal extends javax.swing.JFrame {
         artistaLb2.setForeground(new java.awt.Color(255, 255, 255));
         artistaLb2.setText("Baneados");
         artistaLb2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        artistaLb2.setEnabled(false);
         artistaLb2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 artistaLb2MouseClicked(evt);
@@ -484,8 +484,8 @@ public class Principal extends javax.swing.JFrame {
         panelRound1Layout.setHorizontalGroup(
             panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelRound1Layout.createSequentialGroup()
-                .addGap(83, 83, 83)
-                .addComponent(albumLb, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(14, 14, 14)
+                .addComponent(albumLb, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator10, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -858,7 +858,7 @@ public class Principal extends javax.swing.JFrame {
         );
 
         if (confirm == JOptionPane.YES_OPTION) {
-            dispose(); // Properly dispose of the window instead of System.exit(0)
+            new Inicio().setVisible(true);
             System.exit(0);
         }
     }//GEN-LAST:event_salirMouseClicked
