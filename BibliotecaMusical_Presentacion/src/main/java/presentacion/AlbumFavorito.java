@@ -11,7 +11,6 @@ import com.bmn.dto.constantes.Genero;
 import com.bmn.excepciones.BOException;
 import com.bmn.factories.BOFactory;
 import com.bmn.negocio.ObtenerAlbumesFavoritosBO;
-import com.bmn.negocio.ObtenerAlbumesFiltradosBO;
 import com.bmn.singletonUsuario.UsuarioST;
 import controlador.RenderCeldas;
 import javax.swing.*;
@@ -110,124 +109,6 @@ public class AlbumFavorito extends javax.swing.JFrame {
         }
     }
 
-    private void initGeneroFiltro() {
-        // Populate genre filter combo box
-        generoFiltro.addItem("Todos");
-        for (Genero genero : Genero.values()) {
-            generoFiltro.addItem(genero.name());
-        }
-
-        // Combine listeners for comprehensive filtering
-        ActionListener filterListener = e -> {
-            // Retrieve all filtering criteria
-            String nombreAlbum = nombreDelAlbumTxt.getText().trim().toLowerCase();
-            String nombreArtista = nombreArtistaTxt.getText().trim().toLowerCase();
-            String generoSeleccionado = (String) generoFiltro.getSelectedItem();
-            LocalDate fechaSeleccionada = fechaFiltro.getDate() != null
-                    ? fechaFiltro.getDate().toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate() : null;
-
-            try {
-                // Convert genre to Genero enum, handling "Todos" case
-                Genero genero = generoSeleccionado != null && !generoSeleccionado.equals("Todos")
-                        ? Genero.valueOf(generoSeleccionado)
-                        : null;
-
-                // Obtain albums using existing method
-                ObtenerAlbumesFavoritosBO favoritos = BOFactory.obtenerAlbumesFavoritosFactory();
-                List<AlbumVistaDTO> todosAlbumes = favoritos.obtenerAlbumesFavoritos(genero, fechaSeleccionada);
-
-                // Filter albums based on additional criteria
-                List<AlbumVistaDTO> albumesFiltrados = todosAlbumes.stream()
-                        .filter(album -> {
-                            // Filter by album name (case-insensitive)
-                            boolean matchNombreAlbum = nombreAlbum.isEmpty()
-                                    || album.getNombre().toLowerCase().contains(nombreAlbum);
-
-                            // Filter by artist name (case-insensitive)
-                            boolean matchNombreArtista = nombreArtista.isEmpty()
-                                    || album.getArtistaVista().getNombre().toLowerCase().contains(nombreArtista);
-
-                            return matchNombreAlbum && matchNombreArtista;
-                        })
-                        .collect(Collectors.toList());
-
-                // Update table with filtered results
-                DefaultTableModel modelo = (DefaultTableModel) tablaAlbumFavoritos.getModel();
-                modelo.setRowCount(0);
-
-                for (AlbumVistaDTO album : albumesFiltrados) {
-                    ImageIcon imagen = cargarImagen(album.getImagen());
-                    modelo.addRow(new Object[]{
-                        imagen,
-                        album.getNombre(),
-                        album.getArtistaVista().getNombre()
-                    });
-                }
-
-                // Show message if no results found
-                if (albumesFiltrados.isEmpty()) {
-                    JOptionPane.showMessageDialog(this,
-                            "No se encontraron álbumes que coincidan con los criterios de búsqueda.",
-                            "Filtro de Álbumes",
-                            JOptionPane.INFORMATION_MESSAGE);
-                }
-
-            } catch (BOException ex) {
-                JOptionPane.showMessageDialog(this,
-                        "Error al filtrar álbumes: " + ex.getMessage(),
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE);
-            }
-        };
-
-        // Add listeners to all filtering components
-        generoFiltro.addActionListener(filterListener);
-        fechaFiltro.addPropertyChangeListener("date", e -> filterListener.actionPerformed(null));
-
-        // Add document listeners for text fields to trigger filtering
-        nombreDelAlbumTxt.getDocument().addDocumentListener(new DocumentListener() {
-            public void changedUpdate(DocumentEvent e) {
-                filterListener.actionPerformed(null);
-            }
-
-            public void removeUpdate(DocumentEvent e) {
-                filterListener.actionPerformed(null);
-            }
-
-            public void insertUpdate(DocumentEvent e) {
-                filterListener.actionPerformed(null);
-            }
-        });
-
-        nombreArtistaTxt.getDocument().addDocumentListener(new DocumentListener() {
-            public void changedUpdate(DocumentEvent e) {
-                filterListener.actionPerformed(null);
-            }
-
-            public void removeUpdate(DocumentEvent e) {
-                filterListener.actionPerformed(null);
-            }
-
-            public void insertUpdate(DocumentEvent e) {
-                filterListener.actionPerformed(null);
-            }
-        });
-
-        // Add clear filters button functionality
-        limpiarTodosFiltrosBtn.addActionListener(e -> {
-            // Clear all filter fields
-            nombreDelAlbumTxt.setText("");
-            nombreArtistaTxt.setText("");
-            generoFiltro.setSelectedItem("Todos");
-            fechaFiltro.setDate(null);
-
-            // Reload all albums
-            cargarDatosDeLaBaseDeDatos((DefaultTableModel) tablaAlbumFavoritos.getModel());
-        });
-    }
-
     private void configurarTabla() {
         DefaultTableModel modelo = new DefaultTableModel(
                 new String[]{"IMAGEN", "NOMBRE DEL ALBUM", "ARTISTA"}, 0) {
@@ -283,14 +164,21 @@ public class AlbumFavorito extends javax.swing.JFrame {
             // Retrieve all filtering criteria
             String nombreAlbum = nombreDelAlbumTxt.getText().trim().toLowerCase();
             String nombreArtista = nombreArtistaTxt.getText().trim().toLowerCase();
-            String generoSeleccionado = generoFiltro.getSelectedItem().toString();
+            String generoSeleccionado = (String) generoFiltro.getSelectedItem();
             LocalDate fechaSeleccionada = fechaFiltro.getDate() != null
                     ? fechaFiltro.getDate().toInstant()
                             .atZone(ZoneId.systemDefault())
                             .toLocalDate() : null;
 
             // Convert genre to Genero enum, handling "Todos" case
-            Genero genero = generoSeleccionado.equals("Todos") ? null : Genero.valueOf(generoSeleccionado);
+            Genero genero = null;
+            if (generoSeleccionado != null && !generoSeleccionado.equals("Todos")) {
+                try {
+                    genero = Genero.valueOf(generoSeleccionado);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Invalid genre selected: " + generoSeleccionado);
+                }
+            }
 
             // Obtain albums using existing method
             ObtenerAlbumesFavoritosBO favoritos = BOFactory.obtenerAlbumesFavoritosFactory();
@@ -339,8 +227,8 @@ public class AlbumFavorito extends javax.swing.JFrame {
                     JOptionPane.ERROR_MESSAGE);
         }
     }
-
 // Add this method to handle clearing all filters
+
     private void limpiarFiltros() {
         // Clear text fields
         nombreDelAlbumTxt.setText("");
