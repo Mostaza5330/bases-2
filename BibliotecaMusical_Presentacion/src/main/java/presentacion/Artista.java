@@ -2,21 +2,12 @@ package presentacion;
 
 import java.awt.Graphics2D;
 import com.bmd.entities.Usuario;
-import com.bmn.dto.AlbumDTO;
-import com.bmn.dto.AlbumVistaDTO;
 import com.bmn.dto.ArtistaVistaDTO;
-import com.bmn.dto.FavoritoDTO;
 import com.bmn.dto.constantes.Genero;
-import static com.bmn.dto.constantes.Tipo.ALBUM;
-import static com.bmn.dto.constantes.Tipo.CANCION;
 import com.bmn.excepciones.BOException;
 import com.bmn.factories.BOFactory;
 import com.bmn.interfaces.IObtenerArtistasFavoritosBO;
-import com.bmn.negocio.AgregarCancionFavoritaBO;
 import com.bmn.negocio.AgregarFavoritoBO;
-import com.bmn.negocio.ObtenerAlbumBO;
-import com.bmn.negocio.ObtenerAlbumesFiltradosBO;
-import com.bmn.singletonUsuario.UsuarioST;
 import controlador.RenderCeldas;
 import javax.swing.*;
 import java.util.List;
@@ -234,7 +225,7 @@ public class Artista extends javax.swing.JFrame {
 
     private void cargarDatosDeLaBaseDeDatos(DefaultTableModel modelo) {
         try {
-            List<ArtistaVistaDTO> artistas = obtenerFavoritosBO.obtenerArtistasFavoritos(null, null);
+            List<ArtistaVistaDTO> artistas = obtenerFavoritosBO.obtenerArtistasFavoritos(null , null);
             this.artistas = artistas;
             actualizarTabla(artistas);
         } catch (BOException e) {

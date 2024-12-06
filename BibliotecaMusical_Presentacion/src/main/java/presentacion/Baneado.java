@@ -297,7 +297,7 @@ public class Baneado extends javax.swing.JFrame {
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Baneados");
 
-        menuBtn.setBackground(new java.awt.Color(0, 51, 255));
+        menuBtn.setBackground(new java.awt.Color(58, 107, 128));
         menuBtn.setFont(new java.awt.Font("Segoe UI", 0, 48)); // NOI18N
         menuBtn.setText("<");
         menuBtn.setBorder(null);
@@ -447,28 +447,6 @@ public class Baneado extends javax.swing.JFrame {
     }//GEN-LAST:event_artistasFavLbMouseClicked
 
     private void menuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBtnActionPerformed
-//        int panelWidth = menuDesplegablePanel.getWidth();
-//        int targetX = isMenuVisible ? -panelWidth : 0; // Determina el objetivo según el estado
-//        isMenuVisible = !isMenuVisible; // Alternar estado
-//
-//        // Desactivar tabla cuando el menú está visible
-//        tablaBaneado.setEnabled(!isMenuVisible);
-//
-//        javax.swing.Timer timer = new javax.swing.Timer(15, new java.awt.event.ActionListener() {
-//            int currentX = menuDesplegablePanel.getX();
-//
-//            @Override
-//            public void actionPerformed(java.awt.event.ActionEvent e) {
-//                if ((isMenuVisible && currentX < targetX) || (!isMenuVisible && currentX > targetX)) {
-//                    currentX += isMenuVisible ? 15 : -15; // Mover según el estado
-//                    menuDesplegablePanel.setLocation(currentX, menuDesplegablePanel.getY());
-//                } else {
-//                    ((javax.swing.Timer) e.getSource()).stop();
-//                }
-//            }
-//        });
-//
-//        timer.start();
 
     }//GEN-LAST:event_menuBtnActionPerformed
 

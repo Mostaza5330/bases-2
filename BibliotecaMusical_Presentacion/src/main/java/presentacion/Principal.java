@@ -35,6 +35,7 @@ public class Principal extends javax.swing.JFrame {
     private Usuario usuarioActual;
     private List<AlbumVistaDTO> albumes;
     private AgregarCancionFavoritaBO agregarFavoritoBO;
+    private AlbumDTO detallado;
 
     public Principal() {
         try {
@@ -164,10 +165,11 @@ public class Principal extends javax.swing.JFrame {
 
                         // Obtiene el álbum seleccionado
                         AlbumVistaDTO albumVista = this.albumes.get(modelRow);
+                             
 
                         ObtenerAlbumBO albumBO = BOFactory.obtenerAlbumFactory();
                         AlbumDTO albumDetallado = albumBO.obtenerAlbum(albumVista.getId());
-
+                            this.detallado = albumDetallado;
                         // Actualiza el panel con la información del álbum seleccionado
                         actualizarPanelInformacion(albumDetallado);
                     } catch (BOException | NullPointerException ex) {
@@ -273,7 +275,7 @@ public class Principal extends javax.swing.JFrame {
                             .setIdUsuario(UsuarioST.getInstance().getId())
                             .setIdReferencia(album.getId())
                             .setNombreCancion(nombreCancion)
-                            .setGenero(album.getGenero())
+                            .setGenero(detallado.getGenero())
                             .setTipo(CANCION)
                             .setFechaAgregacion(LocalDate.now())
                             .build();
@@ -307,7 +309,7 @@ public class Principal extends javax.swing.JFrame {
                                 .setIdUsuario(UsuarioST.getInstance().getId())
                                 .setIdReferencia(album.getId())
                                 .setTipo(ALBUM)
-                                .setGenero(album.getGenero())
+                                .setGenero(detallado.getGenero())
                                 .setFechaAgregacion(LocalDate.now())
                                 .build();
 
