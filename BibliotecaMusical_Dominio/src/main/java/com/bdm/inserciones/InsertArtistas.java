@@ -45,28 +45,31 @@ public class InsertArtistas {
             .setTipoArtista("Solista")
             .setNombre("Daddy Yankee")
             .setImagen("daddy_yankee.jpg")
-            .setGenero("Reggaeton")
+            .setGenero("Reggeton")
             .build());
 
          // Artista Bad Bunny
         artistas.add(new Artista.Builder()
             .setId(new ObjectId())
+            .setTipoArtista("Solista")
             .setNombre("Bad Bunny")
             .setImagen("bad_bunny.jpg")
-            .setGenero("Reggaeton")
+            .setGenero("Reggeton")
             .build());
 
         // Artista Ozuna
         artistas.add(new Artista.Builder()
             .setId(new ObjectId())
+            .setTipoArtista("Solista")
             .setNombre("Ozuna")
             .setImagen("ozuna.jpg")
-            .setGenero("Reggaeton")
+            .setGenero("Reggeton")
             .build());
 
         // Artista Camila
         artistas.add(new Artista.Builder()
             .setId(new ObjectId())
+            .setTipoArtista("Solista")
             .setNombre("Camila")
             .setImagen("camila.jpg")
             .setGenero("Pop")
@@ -75,6 +78,7 @@ public class InsertArtistas {
         // Artista Ricky Martin
         artistas.add(new Artista.Builder()
             .setId(new ObjectId())
+            .setTipoArtista("Solista")
             .setNombre("Ricky Martin")
             .setImagen("ricky_martin.jpg")
             .setGenero("Pop")
@@ -83,6 +87,7 @@ public class InsertArtistas {
         // Artista Juanes
         artistas.add(new Artista.Builder()
             .setId(new ObjectId())
+            .setTipoArtista("Solista")
             .setNombre("Juanes")
             .setImagen("juanes.jpg")
             .setGenero("Rock")
@@ -90,7 +95,8 @@ public class InsertArtistas {
 
         // Artista Alejandro Sanz
         artistas.add(new Artista.Builder()
-           .setId(new ObjectId())
+            .setId(new ObjectId())
+            .setTipoArtista("Solista")   
             .setNombre("Alejandro Sanz")
             .setImagen("alejandro_sanz.jpg")
             .setGenero("Pop")
@@ -99,6 +105,7 @@ public class InsertArtistas {
         // Artista Marc Anthony
         artistas.add(new Artista.Builder()
             .setId(new ObjectId())
+            .setTipoArtista("Solista")
             .setNombre("Marc Anthony")
             .setImagen("marc_anthony.jpg")
             .setGenero("Salsa")
@@ -107,6 +114,7 @@ public class InsertArtistas {
         // Artista Jennifer Lopez
         artistas.add(new Artista.Builder()
             .setId(new ObjectId())
+            .setTipoArtista("Solista")
             .setNombre("Jennifer Lopez")
             .setImagen("jennifer_lopez.jpg")
             .setGenero("Pop")
@@ -115,6 +123,7 @@ public class InsertArtistas {
         // Artista Luis Fonsi
         artistas.add(new Artista.Builder()
             .setId(new ObjectId())
+            .setTipoArtista("Solista")
             .setNombre("Luis Fonsi")
             .setImagen("luis_fonsi.jpg")
             .setGenero("Pop")
@@ -123,6 +132,7 @@ public class InsertArtistas {
         // Artista Carlos Vives
         artistas.add(new Artista.Builder()
             .setId(new ObjectId())
+            .setTipoArtista("Solista")
             .setNombre("Carlos Vives")
             .setImagen("carlos_vives.jpg")
             .setGenero("Vallenato")
@@ -131,6 +141,7 @@ public class InsertArtistas {
         // Artista Juan Gabriel
         artistas.add(new Artista.Builder()
             .setId(new ObjectId())
+            .setTipoArtista("Solista")
             .setNombre("Juan Gabriel")
             .setImagen("juan_gabriel.jpg")
             .setGenero("Pop")
@@ -139,6 +150,7 @@ public class InsertArtistas {
         // Artista Alejandro Fernández
         artistas.add(new Artista.Builder()
             .setId(new ObjectId())
+            .setTipoArtista("Solista")
             .setNombre("Alejandro Fernández")
             .setImagen("alejandro_fernandez.jpg")
             .setGenero("Ranchera")
@@ -147,6 +159,7 @@ public class InsertArtistas {
         // Artista Vicente Fernández
         artistas.add(new Artista.Builder()
             .setId(new ObjectId())
+            .setTipoArtista("Solista")
             .setNombre("Vicente Fernández")
             .setImagen("vicente_fernandez.jpg")
             .setGenero("Ranchera")
@@ -155,6 +168,7 @@ public class InsertArtistas {
         // Artista Pedro Infante
         artistas.add(new Artista.Builder()
             .setId(new ObjectId())
+            .setTipoArtista("Solista")
             .setNombre("Pedro Infante")
             .setImagen("pedro_infante.jpg")
             .setGenero("Ranchera")
@@ -163,6 +177,7 @@ public class InsertArtistas {
         // Artista La India
         artistas.add(new Artista.Builder()
             .setId(new ObjectId())
+            .setTipoArtista("Solista")
             .setNombre("La India")
             .setImagen("la_india.jpg")
             .setGenero("Salsa")
@@ -171,6 +186,7 @@ public class InsertArtistas {
         // Artista Celia Cruz
         artistas.add(new Artista.Builder()
             .setId(new ObjectId())
+            .setTipoArtista("Solista")
             .setNombre("Celia Cruz")
             .setImagen("celia_cruz.jpg")
             .setGenero("Salsa")
@@ -179,6 +195,7 @@ public class InsertArtistas {
         // Artista Romeo Santos
         artistas.add(new Artista.Builder()
                 .setId(new ObjectId())
+                .setTipoArtista("Solista")
                 .setNombre("Romeo Santos")
                 .setImagen("romeo_santos.jpg")
                 .setGenero("Bachata")
@@ -187,6 +204,7 @@ public class InsertArtistas {
         // Artista Prince Royce
         artistas.add(new Artista.Builder()
                 .setId(new ObjectId())
+                .setTipoArtista("Solista")
                 .setNombre("Prince Royce")
                 .setImagen("prince_royce.jpg")
                 .setGenero("Bachata")
@@ -195,55 +213,62 @@ public class InsertArtistas {
         // Artista Karol G
         artistas.add(new Artista.Builder()
                 .setId(new ObjectId())
+                .setTipoArtista("Solista")
                 .setNombre("Karol G")
                 .setImagen("karol_g.jpg")
-                .setGenero("Reggaeton")
+                .setGenero("Reggeton")
                 .build());
 
         // Artista J Balvin
         artistas.add(new Artista.Builder()
                 .setId(new ObjectId())
+                .setTipoArtista("Solista")
                 .setNombre("J Balvin")
                 .setImagen("j_balvin.jpg")
-                .setGenero("Reggaeton")
+                .setGenero("Reggeton")
                 .build());
 
         // Artista Maluma
         artistas.add(new Artista.Builder()
                 .setId(new ObjectId())
+                .setTipoArtista("Solista")
                 .setNombre("Maluma")
                 .setImagen("maluma.jpg")
-                .setGenero("Reggaeton")
+                .setGenero("Reggeton")
                 .build());
 
         // Artista Nicky Jam
         artistas.add(new Artista.Builder()
                 .setId(new ObjectId())
+                .setTipoArtista("Solista")
                 .setNombre("Nicky Jam")
                 .setImagen("nicky_jam.jpg")
-                .setGenero("Reggaeton")
+                .setGenero("Reggeton")
                 .build());
 
         // Artista Zion & Lennox
         artistas.add(new Artista.Builder()
                 .setId(new ObjectId())
-                .setNombre("Zion & Lennox")
+                .setTipoArtista("Solista")
+                .setNombre("Zion")
                 .setImagen("zion_lennox.jpg")
-                .setGenero("Reggaeton")
+                .setGenero("Reggeton")
                 .build());
 
         // Artista Anuel AA
         artistas.add(new Artista.Builder()
                 .setId(new ObjectId())
+                .setTipoArtista("Solista")
                 .setNombre("Anuel AA")
                 .setImagen("anuel_aa.jpg")
-                .setGenero("Reggaeton")
+                .setGenero("Reggeton")
                 .build());
 
         // Artista La Banda MS
         artistas.add(new Artista.Builder()
                 .setId(new ObjectId())
-                .setNombre("La Banda MS")
+                .setTipoArtista("Solista")
+                .setNombre("Zayn")
                 .setImagen("la_banda_ms.jpg")
                 .setGenero("Banda")
                 .build());
@@ -251,7 +276,8 @@ public class InsertArtistas {
         // Artista Intocable
         artistas.add(new Artista.Builder()
                 .setId(new ObjectId())
-                .setNombre("Intocable")
+                .setTipoArtista("Solista")
+                .setNombre("Kendrick Lamar")
                 .setImagen("intocable.jpg")
                 .setGenero("Banda")
                 .build());
@@ -579,7 +605,7 @@ public class InsertArtistas {
             .setTipoArtista("Banda")
             .setNombre("Red Hot Chili Peppers")
             .setImagen("red_hot_chili_peppers.jpg")
-            .setGenero("Funk Rock")
+            .setGenero("Funk_Rock")
             .setIntegrantes(integrantesRHCP)
             .build());
 
@@ -700,7 +726,7 @@ public class InsertArtistas {
             .setTipoArtista("Banda")
             .setNombre("Foo Fighters")
             .setImagen("foo_fighters.jpg")
-            .setGenero("Rock Alternativo")
+            .setGenero("Rock_Alternativo")
             .setIntegrantes(integrantesFooFighters)
             .build());
 
@@ -742,7 +768,7 @@ public class InsertArtistas {
             .setTipoArtista("Banda")
             .setNombre("Coldplay")
             .setImagen("coldplay.jpg")
-            .setGenero("Rock Alternativo")
+            .setGenero("Rock_Alternativo")
             .setIntegrantes(integrantesColdplay)
             .build());
 
@@ -784,7 +810,7 @@ public class InsertArtistas {
             .setTipoArtista("Banda")
             .setNombre("Maroon 5")
             .setImagen("maroon_5.jpg")
-            .setGenero("Pop Rock")
+            .setGenero("Pop_Rock")
             .setIntegrantes(integrantesMaroon5)
             .build());
 
@@ -827,7 +853,7 @@ public class InsertArtistas {
             .setTipoArtista("Banda")
             .setNombre("Sleeping with Sirens")
             .setImagen("sleeping_with_sirens.jpg")
-            .setGenero("Post-Hardcore")
+            .setGenero("Post_Hardcore")
             .setIntegrantes(integrantesSWS)
             .build());
 
@@ -863,7 +889,7 @@ public class InsertArtistas {
             .setTipoArtista("Banda")
             .setNombre("Imagine Dragons")
             .setImagen("imagine_dragons.jpg")
-            .setGenero("Rock Alternativo")
+            .setGenero("Rock_Alternativo")
             .setIntegrantes(integrantesImagineDragons)
             .build());
 
@@ -893,7 +919,7 @@ public class InsertArtistas {
             .setTipoArtista("Banda")
             .setNombre("Muse")
             .setImagen("muse.jpg")
-            .setGenero("Rock Alternativo")
+            .setGenero("Rock_Alternativo")
             .setIntegrantes(integrantesMuse)
             .build());
 
@@ -929,7 +955,7 @@ public class InsertArtistas {
             .setTipoArtista("Banda")
             .setNombre("Arctic Monkeys")
             .setImagen("arctic_monkeys.jpg")
-            .setGenero("Indie Rock")
+            .setGenero("Indie_Rock")
             .setIntegrantes(integrantesArcticMonkeys)
             .build());
 
@@ -961,7 +987,7 @@ public class InsertArtistas {
             .setTipoArtista("Banda")
             .setNombre("Panic! At The Disco")
             .setImagen("panic_at_the_disco.jpg")
-            .setGenero("Pop Rock")
+            .setGenero("Pop_Rock")
             .setIntegrantes(integrantesPanicAtTheDisco)
             .build());
 
@@ -1004,7 +1030,7 @@ public class InsertArtistas {
             .setTipoArtista("Banda")
             .setNombre("Linkin Park")
             .setImagen("linkin_park.jpg")
-            .setGenero("Rock Alternativo")
+            .setGenero("Rock_Alternativo")
             .setIntegrantes(integrantesLinkinPark)
             .build());
 
@@ -1028,7 +1054,7 @@ public class InsertArtistas {
             .setTipoArtista("Banda")
             .setNombre("Twenty One Pilots")
             .setImagen("twenty_one_pilots.jpg")
-            .setGenero("Alternative Hip-Hop")
+            .setGenero("Alternative")
             .setIntegrantes(integrantesTwentyOnePilots)
             .build());
 
@@ -1058,7 +1084,7 @@ public class InsertArtistas {
             .setTipoArtista("Banda")
             .setNombre("Green Day")
             .setImagen("green_day.jpg")
-            .setGenero("Punk Rock")
+            .setGenero("Punk_Rock")
             .setIntegrantes(integrantesGreenDay)
             .build());
 
@@ -1095,7 +1121,7 @@ public class InsertArtistas {
             .setTipoArtista("Banda")
             .setNombre("Kings of Leon")
             .setImagen("kings_of_leon.jpg")
-            .setGenero("Rock Alternativo")
+            .setGenero("Rock_Alternativo")
             .setIntegrantes(integrantesKingsOfLeon)
             .build());
 
@@ -1136,7 +1162,7 @@ public class InsertArtistas {
             .setTipoArtista("Banda")
             .setNombre("The Killers")
             .setImagen("the_killers.jpg")
-            .setGenero("Rock Alternativo")
+            .setGenero("Rock_Alternativo")
             .setIntegrantes(integrantesTheKillers)
             .build());
 
@@ -1174,7 +1200,7 @@ public class InsertArtistas {
             .setTipoArtista("Banda")
             .setNombre("Paramore")
             .setImagen("paramore.jpg")
-            .setGenero("Rock Alternativo")
+            .setGenero("Rock_Alternativo")
             .setIntegrantes(integrantesParamore)
             .build());
 
@@ -1210,7 +1236,7 @@ public class InsertArtistas {
             .setTipoArtista("Banda")
             .setNombre("Florence and the Machine")
             .setImagen("florence_and_the_machine.jpg")
-            .setGenero("Indie Rock")
+            .setGenero("Indie_Rock")
             .setIntegrantes(integrantesFlorenceAndTheMachine)
             .build());
 
@@ -1234,7 +1260,7 @@ public class InsertArtistas {
             .setTipoArtista("Banda")
             .setNombre("The Black Keys")
             .setImagen("the_black_keys.jpg")
-            .setGenero("Blues Rock")
+            .setGenero("Blues_Rock")
             .setIntegrantes(integrantesTheBlackKeys)
             .build());
 
@@ -1270,7 +1296,7 @@ public class InsertArtistas {
             .setTipoArtista("Banda")
             .setNombre("The 1975")
             .setImagen("the_1975.jpg")
-            .setGenero("Indie Rock")
+            .setGenero("Indie_Rock")
             .setIntegrantes(integrantesThe1975)
             .build());
 
@@ -1312,7 +1338,7 @@ public class InsertArtistas {
             .setTipoArtista("Banda")
             .setNombre("Of Monsters and Men")
             .setImagen("of_monsters_and_men.jpg")
-            .setGenero("Indie Folk")
+            .setGenero("Indie_Folk")
             .setIntegrantes(integrantesOfMonstersAndMen)
             .build());
 
@@ -1342,7 +1368,7 @@ public class InsertArtistas {
             .setTipoArtista("Banda")
             .setNombre("The Lumineers")
             .setImagen("the_lumineers.jpg")
-            .setGenero("Indie Folk")
+            .setGenero("Indie_Folk")
             .setIntegrantes(integrantesTheLumineers)
             .build());
         
@@ -1352,7 +1378,7 @@ public class InsertArtistas {
             .setTipoArtista("Solista")
             .setNombre("Natanael Cano")
             .setImagen("natanael_cano.jpg")
-            .setGenero("Corridos Tumbados")
+            .setGenero("Corridos_Tumbados")
             .build());
 
         // Peso Pluma
@@ -1361,7 +1387,7 @@ public class InsertArtistas {
             .setTipoArtista("Solista")
             .setNombre("Peso Pluma")
             .setImagen("peso_pluma.jpg")
-            .setGenero("Corridos Tumbados")
+            .setGenero("Corridos_Tumbados")
             .build());
 
         //  Tito Double P
@@ -1370,7 +1396,7 @@ public class InsertArtistas {
             .setTipoArtista("Solista")
             .setNombre("Tito Double P")
             .setImagen("tito_double_p.jpg")
-            .setGenero("Corridos Belicos")
+            .setGenero("Corridos_Belicos")
             .build());
 
         //  Luis R Conriquez
@@ -1379,7 +1405,7 @@ public class InsertArtistas {
             .setTipoArtista("Solista")
             .setNombre("Luis R Conriquez")
             .setImagen("luis_r_conriquez.jpg")
-            .setGenero("Corridos Bélicos")
+            .setGenero("Corridos_Bélicos")
             .build());
 
         //  Junior H
@@ -1388,7 +1414,7 @@ public class InsertArtistas {
             .setTipoArtista("Solista")
             .setNombre("Junior H")
             .setImagen("junior_h.jpg")
-            .setGenero("Corridos Tumbados")
+            .setGenero("Corridos_Tumbados")
             .build());
         
         // Dua Lipa
@@ -1433,7 +1459,7 @@ public class InsertArtistas {
             .setTipoArtista("Solista")
             .setNombre("Post Malone")
             .setImagen("post_malone.jpg")
-            .setGenero("Hip-Hop")
+            .setGenero("Hip_Hop")
             .build());
         
         // Harry Styles
@@ -1482,10 +1508,7 @@ public class InsertArtistas {
             .setGenero("Pop")
             .build());
 
-        
-        
-        
-
+     
         return artistas;
     }
 }
