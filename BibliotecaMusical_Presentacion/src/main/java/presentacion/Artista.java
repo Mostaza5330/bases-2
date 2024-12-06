@@ -530,11 +530,11 @@ public class Artista extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void busquedaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_busquedaActionPerformed
-        // TODO add your handling code here:
+       
     }//GEN-LAST:event_busquedaActionPerformed
 
     private void buscarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buscarBtnActionPerformed
-        // TODO add your handling code here:
+        busquedaActionPerformed(evt);
     }//GEN-LAST:event_buscarBtnActionPerformed
 
     private void perfilLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_perfilLbMouseClicked

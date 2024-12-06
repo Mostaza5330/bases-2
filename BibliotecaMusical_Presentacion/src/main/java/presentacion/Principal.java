@@ -121,7 +121,7 @@ public class Principal extends javax.swing.JFrame {
                         int modelRow = tablaAlbum.convertRowIndexToModel(selectedRow);
 
                         AlbumVistaDTO albumVista = this.albumes.get(modelRow);
-                        
+
                         ObtenerAlbumBO albumBO = BOFactory.obtenerAlbumFactory();
                         // Get just the string ID from the usuario object
                         AlbumDTO albumDetallado = albumBO.obtenerAlbum(albumVista.getId());
@@ -292,11 +292,10 @@ public class Principal extends javax.swing.JFrame {
         return usuarioActual;
     }
 
-    
-    private void obtenerSeleccion(){
-        
+    private void obtenerSeleccion() {
+
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -791,41 +790,44 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_perfilLbMouseClicked
 
     private void artistasFavLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_artistasFavLbMouseClicked
-        try {
-            // Example: new FavoriteArtists().setVisible(true);
-            JOptionPane.showMessageDialog(this,
-                    "Función en desarrollo",
-                    "Aviso",
-                    JOptionPane.INFORMATION_MESSAGE);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this,
-                    "Error al abrir artistas favoritos: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
+       dispose();
+        new ArtistaFavorito().setVisible(true);
     }//GEN-LAST:event_artistasFavLbMouseClicked
 
     private void menuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBtnActionPerformed
+        int panelWidth = menuDesplegablePanel.getWidth();
+        int targetX = isMenuVisible ? -panelWidth : 0; // Determina el objetivo según el estado
+        isMenuVisible = !isMenuVisible; // Alternar estado
+
+        // Desactivar tabla cuando el menú está visible
+        tablaAlbum.setEnabled(!isMenuVisible);
+
+        javax.swing.Timer timer = new javax.swing.Timer(15, new java.awt.event.ActionListener() {
+            int currentX = menuDesplegablePanel.getX();
+
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                if ((isMenuVisible && currentX < targetX) || (!isMenuVisible && currentX > targetX)) {
+                    currentX += isMenuVisible ? 15 : -15; // Mover según el estado
+                    menuDesplegablePanel.setLocation(currentX, menuDesplegablePanel.getY());
+                } else {
+                    ((javax.swing.Timer) e.getSource()).stop();
+                }
+            }
+        });
+
+        timer.start();
 
     }//GEN-LAST:event_menuBtnActionPerformed
 
     private void artistaLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_artistaLbMouseClicked
-        try {
-            // Example: new ArtistaView().setVisible(true);
-            JOptionPane.showMessageDialog(this,
-                    "Función en desarrollo",
-                    "Aviso",
-                    JOptionPane.INFORMATION_MESSAGE);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this,
-                    "Error al abrir vista de artistas: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
+        dispose();
+        new Artista().setVisible(true);
     }//GEN-LAST:event_artistaLbMouseClicked
 
     private void albumFavLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_albumFavLbMouseClicked
-
+        dispose();
+        new AlbumFavorito().setVisible(true);
     }//GEN-LAST:event_albumFavLbMouseClicked
 
     private void salirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_salirMouseClicked

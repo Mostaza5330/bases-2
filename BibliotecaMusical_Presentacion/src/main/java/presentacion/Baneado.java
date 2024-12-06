@@ -34,9 +34,6 @@ public class Baneado extends javax.swing.JFrame {
             // Configurar tabla para mostrar géneros restringidos
             configurarTabla();
 
-            // Configurar eventos de búsqueda y filtrado
-            configurarEventosBusqueda();
-
             // Cargar los géneros restringidos
             cargarGenerosRestringidos();
         } catch (Exception e) {
@@ -100,17 +97,6 @@ public class Baneado extends javax.swing.JFrame {
         return generosRestringidos;
     }
 
-    private void configurarEventosBusqueda() {
-        // Configurar evento de búsqueda para el campo de texto
-        busqueda.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                String texto = busqueda.getText().trim();
-                buscarGenero(texto);
-            }
-        });
-    }
-
     private void buscarGenero(String texto) {
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(modeloTabla);
         tablaBaneado.setRowSorter(sorter);
@@ -143,11 +129,12 @@ public class Baneado extends javax.swing.JFrame {
         salir = new javax.swing.JLabel();
         jSeparator5 = new javax.swing.JSeparator();
         perfilLb = new javax.swing.JLabel();
+        artistaLb1 = new javax.swing.JLabel();
+        jSeparator6 = new javax.swing.JSeparator();
+        artistaLb2 = new javax.swing.JLabel();
+        jSeparator7 = new javax.swing.JSeparator();
         panelRound1 = new controlador.PanelRound();
         jLabel1 = new javax.swing.JLabel();
-        panelRound3 = new controlador.PanelRound();
-        busqueda = new javax.swing.JTextField();
-        buscarBtn = new javax.swing.JButton();
         menuBtn = new javax.swing.JButton();
         panelInformacionAlbum = new controlador.PanelRound();
         jLabel2 = new javax.swing.JLabel();
@@ -155,9 +142,11 @@ public class Baneado extends javax.swing.JFrame {
         generoBaneado = new javax.swing.JComboBox<>();
         quitarBaneoBtn = new javax.swing.JButton();
         banearBtn = new javax.swing.JButton();
+        quitarBaneoBtn1 = new javax.swing.JButton();
         panelRound5 = new controlador.PanelRound();
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaBaneado = new javax.swing.JTable();
+        jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -228,6 +217,27 @@ public class Baneado extends javax.swing.JFrame {
             }
         });
 
+        artistaLb1.setFont(new java.awt.Font("OCR A Extended", 0, 24)); // NOI18N
+        artistaLb1.setForeground(new java.awt.Color(255, 255, 255));
+        artistaLb1.setText("Canciones Favoritas");
+        artistaLb1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        artistaLb1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                artistaLb1MouseClicked(evt);
+            }
+        });
+
+        artistaLb2.setFont(new java.awt.Font("OCR A Extended", 0, 24)); // NOI18N
+        artistaLb2.setForeground(new java.awt.Color(255, 255, 255));
+        artistaLb2.setText("Baneados");
+        artistaLb2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        artistaLb2.setEnabled(false);
+        artistaLb2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                artistaLb2MouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout menuDesplegablePanelLayout = new javax.swing.GroupLayout(menuDesplegablePanel);
         menuDesplegablePanel.setLayout(menuDesplegablePanelLayout);
         menuDesplegablePanelLayout.setHorizontalGroup(
@@ -241,17 +251,21 @@ public class Baneado extends javax.swing.JFrame {
                     .addComponent(jSeparator2)
                     .addComponent(artistaLb, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jSeparator3)
-                    .addComponent(artistasFavLb, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
+                    .addComponent(artistasFavLb, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jSeparator4)
                     .addComponent(jSeparator5)
                     .addGroup(menuDesplegablePanelLayout.createSequentialGroup()
                         .addComponent(salir)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(artistaLb1, javax.swing.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
+                    .addComponent(jSeparator6)
+                    .addComponent(artistaLb2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jSeparator7))
                 .addContainerGap())
             .addGroup(menuDesplegablePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(menuDesplegablePanelLayout.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(perfilLb, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(perfilLb, javax.swing.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
                     .addContainerGap()))
         );
         menuDesplegablePanelLayout.setVerticalGroup(
@@ -273,7 +287,15 @@ public class Baneado extends javax.swing.JFrame {
                 .addComponent(artistasFavLb)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator4, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 401, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(artistaLb1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator6, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(artistaLb2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator7, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 305, Short.MAX_VALUE)
                 .addComponent(jSeparator5, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(salir)
@@ -285,58 +307,13 @@ public class Baneado extends javax.swing.JFrame {
                     .addGap(52, 52, 52)))
         );
 
-        Fondo.add(menuDesplegablePanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 290, 660));
+        Fondo.add(menuDesplegablePanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 300, 660));
 
         panelRound1.setBackground(new java.awt.Color(58, 107, 128));
 
         jLabel1.setFont(new java.awt.Font("OCR A Extended", 0, 36)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Baneados");
-
-        panelRound3.setBackground(new java.awt.Color(35, 58, 68));
-        panelRound3.setRoundBottomLeft(50);
-        panelRound3.setRoundBottomRight(50);
-        panelRound3.setRoundTopLeft(50);
-        panelRound3.setRoundTopRight(50);
-
-        busqueda.setBackground(new java.awt.Color(35, 58, 68));
-        busqueda.setForeground(new java.awt.Color(255, 255, 255));
-        busqueda.setBorder(null);
-        busqueda.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                busquedaActionPerformed(evt);
-            }
-        });
-
-        buscarBtn.setBackground(new java.awt.Color(35, 58, 68));
-        buscarBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/media/lupa.png"))); // NOI18N
-        buscarBtn.setBorder(null);
-        buscarBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buscarBtnActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout panelRound3Layout = new javax.swing.GroupLayout(panelRound3);
-        panelRound3.setLayout(panelRound3Layout);
-        panelRound3Layout.setHorizontalGroup(
-            panelRound3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelRound3Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addComponent(busqueda, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(buscarBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(21, 21, 21))
-        );
-        panelRound3Layout.setVerticalGroup(
-            panelRound3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelRound3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(buscarBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(busqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(8, 8, 8))
-        );
 
         menuBtn.setBackground(new java.awt.Color(58, 107, 128));
         menuBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/media/menu.png"))); // NOI18N
@@ -356,9 +333,7 @@ public class Baneado extends javax.swing.JFrame {
                 .addComponent(menuBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(37, 37, 37)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 514, Short.MAX_VALUE)
-                .addComponent(panelRound3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(127, 127, 127))
+                .addContainerGap(949, Short.MAX_VALUE))
         );
         panelRound1Layout.setVerticalGroup(
             panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -368,9 +343,7 @@ public class Baneado extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(panelRound3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(45, 45, 45))
         );
 
@@ -399,12 +372,17 @@ public class Baneado extends javax.swing.JFrame {
         quitarBaneoBtn.setBackground(new java.awt.Color(58, 107, 128));
         quitarBaneoBtn.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
         quitarBaneoBtn.setForeground(new java.awt.Color(255, 255, 255));
-        quitarBaneoBtn.setText("Quitar Ban");
+        quitarBaneoBtn.setText("Regresar");
 
         banearBtn.setBackground(new java.awt.Color(58, 107, 128));
         banearBtn.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
         banearBtn.setForeground(new java.awt.Color(255, 255, 255));
         banearBtn.setText("Banear");
+
+        quitarBaneoBtn1.setBackground(new java.awt.Color(58, 107, 128));
+        quitarBaneoBtn1.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
+        quitarBaneoBtn1.setForeground(new java.awt.Color(255, 255, 255));
+        quitarBaneoBtn1.setText("Quitar Ban");
 
         javax.swing.GroupLayout panelInformacionAlbumLayout = new javax.swing.GroupLayout(panelInformacionAlbum);
         panelInformacionAlbum.setLayout(panelInformacionAlbumLayout);
@@ -412,19 +390,21 @@ public class Baneado extends javax.swing.JFrame {
             panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
                 .addGap(44, 44, 44)
-                .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
-                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 492, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(54, Short.MAX_VALUE))
+                .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
                         .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(generoSinBan, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(banearBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(quitarBaneoBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(generoBaneado, 0, 160, Short.MAX_VALUE))
-                        .addGap(84, 84, 84))))
+                        .addGap(164, 164, 164)
+                        .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(generoBaneado, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(quitarBaneoBtn1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 492, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(54, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelInformacionAlbumLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(quitarBaneoBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(213, 213, 213))
         );
         panelInformacionAlbumLayout.setVerticalGroup(
             panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -437,12 +417,14 @@ public class Baneado extends javax.swing.JFrame {
                     .addComponent(generoBaneado, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(22, 22, 22)
                 .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(quitarBaneoBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 43, Short.MAX_VALUE)
-                    .addComponent(banearBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(69, Short.MAX_VALUE))
+                    .addComponent(banearBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 43, Short.MAX_VALUE)
+                    .addComponent(quitarBaneoBtn1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(quitarBaneoBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(8, Short.MAX_VALUE))
         );
 
-        Fondo.add(panelInformacionAlbum, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 90, 590, 260));
+        Fondo.add(panelInformacionAlbum, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 100, 590, 260));
 
         panelRound5.setBackground(new java.awt.Color(35, 58, 68));
         panelRound5.setRoundBottomLeft(30);
@@ -453,13 +435,13 @@ public class Baneado extends javax.swing.JFrame {
         tablaBaneado.setBackground(new java.awt.Color(35, 58, 68));
         tablaBaneado.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+                {null},
+                {null},
+                {null},
+                {null}
             },
             new String [] {
-                "Genero", "Fecha de baneo", "Razon"
+                "Genero"
             }
         ));
         tablaBaneado.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -470,38 +452,39 @@ public class Baneado extends javax.swing.JFrame {
             tablaBaneado.getColumnModel().getColumn(0).setPreferredWidth(200);
         }
 
+        jLabel3.setFont(new java.awt.Font("OCR A Extended", 0, 36)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel3.setText("Generos baneados");
+
         javax.swing.GroupLayout panelRound5Layout = new javax.swing.GroupLayout(panelRound5);
         panelRound5.setLayout(panelRound5Layout);
         panelRound5Layout.setHorizontalGroup(
             panelRound5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelRound5Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 498, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 568, Short.MAX_VALUE)
                 .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound5Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel3)
+                .addGap(103, 103, 103))
         );
         panelRound5Layout.setVerticalGroup(
             panelRound5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelRound5Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 588, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound5Layout.createSequentialGroup()
+                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 269, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
-        Fondo.add(panelRound5, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 90, 510, 600));
+        Fondo.add(panelRound5, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 380, 580, 330));
 
-        getContentPane().add(Fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1280, 720));
+        getContentPane().add(Fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 740, 720));
 
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
-
-    private void busquedaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_busquedaActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_busquedaActionPerformed
-
-    private void buscarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buscarBtnActionPerformed
-
-    }//GEN-LAST:event_buscarBtnActionPerformed
 
     private void perfilLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_perfilLbMouseClicked
 
@@ -571,33 +554,44 @@ public class Baneado extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_salirMouseClicked
 
+    private void artistaLb1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_artistaLb1MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_artistaLb1MouseClicked
+
+    private void artistaLb2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_artistaLb2MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_artistaLb2MouseClicked
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Fondo;
     private javax.swing.JLabel albumFavLb;
     private javax.swing.JLabel albumLb;
     private javax.swing.JLabel artistaLb;
+    private javax.swing.JLabel artistaLb1;
+    private javax.swing.JLabel artistaLb2;
     private javax.swing.JLabel artistasFavLb;
     private javax.swing.JButton banearBtn;
-    private javax.swing.JButton buscarBtn;
-    private javax.swing.JTextField busqueda;
     private javax.swing.JComboBox<String> generoBaneado;
     private javax.swing.JComboBox<String> generoSinBan;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
     private javax.swing.JSeparator jSeparator5;
+    private javax.swing.JSeparator jSeparator6;
+    private javax.swing.JSeparator jSeparator7;
     private javax.swing.JButton menuBtn;
     private javax.swing.JPanel menuDesplegablePanel;
     private controlador.PanelRound panelInformacionAlbum;
     private controlador.PanelRound panelRound1;
-    private controlador.PanelRound panelRound3;
     private controlador.PanelRound panelRound5;
     private javax.swing.JLabel perfilLb;
     private javax.swing.JButton quitarBaneoBtn;
+    private javax.swing.JButton quitarBaneoBtn1;
     private javax.swing.JLabel salir;
     private javax.swing.JTable tablaBaneado;
     // End of variables declaration//GEN-END:variables
