@@ -78,12 +78,19 @@ public class Baneado extends javax.swing.JFrame {
     public List<Genero> getGenerosRestringidos() {
         return generosRestringidos;
     }
+<<<<<<< HEAD
 
     
     public void recargarBaneados(){
         try{
             // Usar ObtenerRestringidosBO para obtener los géneros restringidos
             ObtenerRestringidosBO obtenerRestringidos = BOFactory.obtenerRestringidosFactory();
+=======
+    
+    private void buscarGenero(String texto) {
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(modeloTabla);
+        tablaBaneado.setRowSorter(sorter);
+>>>>>>> d0b9147c1372797fa5b2a1f44daac58640e567c5
 
             generoBaneado.removeAllItems();
             
@@ -447,6 +454,7 @@ public class Baneado extends javax.swing.JFrame {
     }//GEN-LAST:event_artistasFavLbMouseClicked
 
     private void menuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBtnActionPerformed
+<<<<<<< HEAD
 //        int panelWidth = menuDesplegablePanel.getWidth();
 //        int targetX = isMenuVisible ? -panelWidth : 0; // Determina el objetivo según el estado
 //        isMenuVisible = !isMenuVisible; // Alternar estado
@@ -470,6 +478,11 @@ public class Baneado extends javax.swing.JFrame {
 //
 //        timer.start();
 
+=======
+        dispose();
+        new Principal().setVisible(true);
+        
+>>>>>>> d0b9147c1372797fa5b2a1f44daac58640e567c5
     }//GEN-LAST:event_menuBtnActionPerformed
 
     private void artistaLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_artistaLbMouseClicked
