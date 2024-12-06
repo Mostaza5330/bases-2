@@ -116,7 +116,6 @@ public class Baneado extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        Fondo = new javax.swing.JPanel();
         menuDesplegablePanel = new javax.swing.JPanel();
         albumLb = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
@@ -133,6 +132,7 @@ public class Baneado extends javax.swing.JFrame {
         jSeparator6 = new javax.swing.JSeparator();
         artistaLb2 = new javax.swing.JLabel();
         jSeparator7 = new javax.swing.JSeparator();
+        Fondo = new javax.swing.JPanel();
         panelRound1 = new controlador.PanelRound();
         jLabel1 = new javax.swing.JLabel();
         menuBtn = new javax.swing.JButton();
@@ -147,12 +147,6 @@ public class Baneado extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaBaneado = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        Fondo.setBackground(new java.awt.Color(24, 40, 54));
-        Fondo.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         menuDesplegablePanel.setBackground(new java.awt.Color(58, 107, 128));
         menuDesplegablePanel.setPreferredSize(new java.awt.Dimension(290, 660));
@@ -307,7 +301,11 @@ public class Baneado extends javax.swing.JFrame {
                     .addGap(52, 52, 52)))
         );
 
-        Fondo.add(menuDesplegablePanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 300, 660));
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        Fondo.setBackground(new java.awt.Color(24, 40, 54));
+        Fondo.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         panelRound1.setBackground(new java.awt.Color(58, 107, 128));
 
