@@ -47,6 +47,10 @@ public class InicioSesionBO implements IInicioSesionBO {
         try{
             Usuario usuario = usuarioDAO.buscaPorCorreo(usuarioDTO.getCorreo());
             
+            if (usuario == null) {
+                throw new BOException("Error en correo o contraseña.");
+            }
+            
             UsuarioST.setUsuario(usuario);
             
             //le asignamos la contraseña obtenida al nuevo nuestro dto

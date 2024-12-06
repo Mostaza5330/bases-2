@@ -52,7 +52,7 @@ public class RegistrarUsuarioBO implements IRegistrarUsuarioBO{
     }
     
     private void verificarFormatoCorreo(UsuarioRegistrarDTO usuario) throws BOException {
-        if (!usuario.getCorreo().matches(".+@")) {
+        if (!usuario.getCorreo().matches("^[\\w.%+-]+@gmail\\.com$")) {
             throw new BOException("Se debe de incluir @ para ser valido");
         }
     }
