@@ -75,6 +75,7 @@ public class AgregarCancionFavoritaBO implements IAgregarCancionFavoritoBO {
                 setIdReferencia(new ObjectId(favoritoDTO.getIdReferencia())).
                 setNombreCancion((favoritoDTO.getNombreCancion() == null) ? null : favoritoDTO.getNombreCancion()).
                 setTipo(favoritoDTO.getTipo().name()).
+                setGenero(favoritoDTO.getGenero().name()).
                 setFechaAgregacion(favoritoDTO.getFechaAgregacion()).
                 build();
         return favorito;
