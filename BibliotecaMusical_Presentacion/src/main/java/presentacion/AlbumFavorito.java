@@ -41,8 +41,7 @@ public class AlbumFavorito extends javax.swing.JFrame {
     public AlbumFavorito() {
         try {
             initComponents();
-
-            // Configurar tabla
+            cargarComboBox(); // Configurar tabla
             configurarTabla();
 
             // Obtener usuario actual
@@ -66,6 +65,12 @@ public class AlbumFavorito extends javax.swing.JFrame {
                     "Error al inicializar la ventana de álbumes favoritos: " + e.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void cargarComboBox() {
+        for (Genero genero : Genero.values()) {
+            generoFiltro.addItem(genero.name());
         }
     }
 
