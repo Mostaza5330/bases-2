@@ -4,12 +4,14 @@ import com.bmn.dto.FavoritoDTO;
 import com.bmn.dto.constantes.Genero;
 import com.bmn.excepciones.BOException;
 import com.bmn.factories.BOFactory;
+import com.bmn.negocio.ObtenerCancionesFavoritasBO;
 import com.bmn.negocio.ObtenerRestringidosBO;
 import controlador.RenderCeldas;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -28,6 +30,11 @@ public class CancionesFavoritas extends javax.swing.JFrame {
 
     public CancionesFavoritas() {
         try {
+            
+            ObtenerCancionesFavoritasBO favrourite = BOFactory.obtenerCancionesFavoritosFactory();
+            
+            this.favoritos = favrourite.obtenerCancionesFavoritas(null, null);
+            
             // Inicializar componentes gráficos
             initComponents();
 
@@ -56,7 +63,7 @@ public class CancionesFavoritas extends javax.swing.JFrame {
         String[] columns = {"Nombre", "Genero", "Fecha"};
         DefaultTableModel tableModel = new DefaultTableModel(columns, 0);
         
-//        try{
+        try{
             List<FavoritoDTO> cancionesFavoritas = this.favoritos;
             
             for (FavoritoDTO favorito : cancionesFavoritas) {
@@ -70,13 +77,13 @@ public class CancionesFavoritas extends javax.swing.JFrame {
             
             this.tablaBaneado.setModel(tableModel);
             
-//        }catch(BOException de){
-//            JOptionPane.showMessageDialog(this, 
-//                    "Error al cargar las canciones: " + 
-//                    de.getMessage(),
-//                    "Error", 
-//                    JOptionPane.ERROR_MESSAGE);
-//        }
+        }catch(Exception de){
+            JOptionPane.showMessageDialog(this, 
+                    "Error al cargar las canciones: " + 
+                    de.getMessage(),
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     private void configurarTabla() {
@@ -478,7 +485,7 @@ public class CancionesFavoritas extends javax.swing.JFrame {
         quitarBaneoBtn.setBackground(new java.awt.Color(58, 107, 128));
         quitarBaneoBtn.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
         quitarBaneoBtn.setForeground(new java.awt.Color(255, 255, 255));
-        quitarBaneoBtn.setText("Regresar");
+        quitarBaneoBtn.setText("Buscar");
 
         btnLimpiar.setText("Limpiar");
 
@@ -490,8 +497,8 @@ public class CancionesFavoritas extends javax.swing.JFrame {
                 .addGap(86, 86, 86)
                 .addComponent(generoSinBan, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(77, 77, 77)
-                .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(102, Short.MAX_VALUE))
+                .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelInformacionAlbumLayout.createSequentialGroup()
                 .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
@@ -500,7 +507,7 @@ public class CancionesFavoritas extends javax.swing.JFrame {
                     .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
                         .addGap(23, 23, 23)
                         .addComponent(btnLimpiar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 121, Short.MAX_VALUE)
                         .addComponent(jLabel2)))
                 .addGap(213, 213, 213))
         );
