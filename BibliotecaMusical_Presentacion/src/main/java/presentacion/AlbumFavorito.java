@@ -6,10 +6,17 @@ package presentacion;
 
 import java.awt.Graphics2D;
 import com.bmd.entities.Usuario;
+import com.bmn.dto.AlbumDTO;
 import com.bmn.dto.AlbumVistaDTO;
+import com.bmn.dto.FavoritoDTO;
 import com.bmn.dto.constantes.Genero;
+import static com.bmn.dto.constantes.Tipo.ALBUM;
+import static com.bmn.dto.constantes.Tipo.CANCION;
 import com.bmn.excepciones.BOException;
 import com.bmn.factories.BOFactory;
+import com.bmn.negocio.AgregarCancionFavoritaBO;
+import com.bmn.negocio.AgregarFavoritoBO;
+import com.bmn.negocio.ObtenerAlbumBO;
 import com.bmn.negocio.ObtenerAlbumesFavoritosBO;
 import com.bmn.singletonUsuario.UsuarioST;
 import controlador.RenderCeldas;
@@ -31,12 +38,14 @@ public class AlbumFavorito extends javax.swing.JFrame {
 
     private Usuario usuarioActual;
     private List<AlbumVistaDTO> albumes;
-    private ObtenerAlbumesFavoritosBO obtenerAlbumes;
+    private AgregarCancionFavoritaBO agregarFavoritoBO;
+    private AlbumDTO detallado;
 
     public AlbumFavorito() {
         try {
             initComponents();
             cargarComboBox(); // Configurar tabla
+            configurarSeleccionTabla();
             configurarTabla();
 
             // Obtener usuario actual
@@ -69,7 +78,187 @@ public class AlbumFavorito extends javax.swing.JFrame {
         }
     }
 
+    private void actualizarPanelInformacion(AlbumDTO album) {
+        if (album == null) {
+            // Clear all fields if album is null
+            imagenAlbum.setIcon(null);
+            nombreDelAlbumTxt.setText("");
+            nombreArtistaTxt.setText("");
+            fechaLanzamientoTxt.setText("");
+            generoTxt.setText("Sin género");  // Direct text when album is null
+
+            // Clear songs table
+            DefaultTableModel modeloCanciones = (DefaultTableModel) cancionesDelAlbum.getModel();
+            modeloCanciones.setRowCount(0);
+
+            return;
+        }
+
+        // Load album image
+        ImageIcon albumIcon = cargarImagen(album.getImagenPortada());
+        if (albumIcon != null) {
+            Image scaled = albumIcon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+            imagenAlbum.setIcon(new ImageIcon(scaled));
+        } else {
+            imagenAlbum.setIcon(null);
+        }
+
+        // Set album details
+        nombreDelAlbumTxt.setText(album.getNombre() != null ? album.getNombre() : "");
+        nombreArtistaTxt.setText(album.getArtista() != null && album.getArtista().getNombre() != null
+                ? album.getArtista().getNombre()
+                : "");
+        fechaLanzamientoTxt.setText(album.getFechaLanzamiento() != null
+                ? album.getFechaLanzamiento().toString()
+                : "");
+        generoTxt.setText(album.getGenero() != null
+                ? album.getGenero().name()
+                : "");
+
+        // Configure songs table model
+        DefaultTableModel modeloCanciones = new DefaultTableModel(
+                new String[]{"Título", "Favorito"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 1;
+            }
+
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                return columnIndex == 1 ? Boolean.class : String.class;
+            }
+        };
+
+        // Populate songs table, handling potential null list
+        if (album.getCanciones() != null) {
+            album.getCanciones().forEach(cancion -> {
+                modeloCanciones.addRow(new Object[]{
+                    cancion.getNombre() != null ? cancion.getNombre() : "",
+                    cancion.isFavorito()
+                });
+            });
+        }
+
+        cancionesDelAlbum.setModel(modeloCanciones);
+
+        // Add table listener for checkbox changes
+        cancionesDelAlbum.getModel().addTableModelListener(e -> {
+            if (e.getColumn() == 1) {
+                int row = e.getFirstRow();
+                String nombreCancion = (String) cancionesDelAlbum.getValueAt(row, 0);
+                boolean nuevoEstado = (boolean) cancionesDelAlbum.getValueAt(row, 1);
+
+                try {
+                    // Check if album or its genre is null
+                    if (album == null) {
+                        throw new BOException("El álbum no puede ser nulo");
+                    }
+                    if (album.getGenero() == null) {
+                        // Revert checkbox state
+                        SwingUtilities.invokeLater(() -> {
+                            cancionesDelAlbum.setValueAt(!nuevoEstado, row, 1);
+                            JOptionPane.showMessageDialog(this,
+                                    "No se puede marcar como favorito: El género del álbum es requerido",
+                                    "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        });
+                        return;
+                    }
+
+                    FavoritoDTO favoritoDTO = new FavoritoDTO.Builder()
+                            .setIdUsuario(UsuarioST.getInstance().getId())
+                            .setIdReferencia(album.getId())
+                            .setNombreCancion(nombreCancion)
+                            .setGenero(detallado.getGenero())
+                            .setTipo(CANCION)
+                            .setFechaAgregacion(LocalDate.now())
+                            .build();
+
+                    agregarFavoritoBO.agregarCancionFavorita(favoritoDTO);
+                    album.getCanciones().get(row).setFavorito(nuevoEstado);
+                } catch (BOException ex) {
+                    SwingUtilities.invokeLater(() -> {
+                        cancionesDelAlbum.setValueAt(!nuevoEstado, row, 1);
+                        JOptionPane.showMessageDialog(this,
+                                "Error al modificar favoritos: " + ex.getMessage(),
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    });
+                }
+            }
+        });
+
+        // Update button color and text based on favorite status
+        if (album.isFavorito()) {
+            agregarFavoritoAlbumBtn.setBackground(new Color(24, 40, 54)); // Green for favorite
+            agregarFavoritoAlbumBtn.setText("Eliminar de Favoritos");
+        } else {
+            agregarFavoritoAlbumBtn.setBackground(new Color(58, 107, 128)); // Default color
+            agregarFavoritoAlbumBtn.setText("Agregar a Favoritos");
+        } // Add action listener to toggle favorite status
+        agregarFavoritoAlbumBtn
+                .addActionListener(e -> {
+                    try {
+                        FavoritoDTO favoritoDTO = new FavoritoDTO.Builder()
+                                .setIdUsuario(UsuarioST.getInstance().getId())
+                                .setIdReferencia(album.getId())
+                                .setTipo(ALBUM)
+                                .setGenero(detallado.getGenero())
+                                .setFechaAgregacion(LocalDate.now())
+                                .build();
+
+                        if (album.isFavorito()) {
+                            // Remove from favorites
+
+                            AgregarFavoritoBO agregarFavoritoBO = BOFactory.agregarFavoritoFactory();
+                            agregarFavoritoBO.agregarFavorito(favoritoDTO);
+                            album.setFavorito(false);
+                        } else {
+                            // Add to favorites
+                            AgregarFavoritoBO agregarFavoritoBO = BOFactory.agregarFavoritoFactory();
+                            agregarFavoritoBO.agregarFavorito(favoritoDTO);
+                            album.setFavorito(true);
+                        }
+                        actualizarPanelInformacion(album);
+                    } catch (BOException ex) {
+                        JOptionPane.showMessageDialog(this,
+                                "Error al modificar favoritos: " + ex.getMessage(),
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+    }
+
+    private void configurarSeleccionTabla() {
+        // Configura el evento de selección de filas en la tabla de álbumes
+        tablaAlbumFavoritos.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int selectedRow = tablaAlbumFavoritos.getSelectedRow(); // Obtiene la fila seleccionada
+                if (selectedRow >= 0) {
+                    try {
+                        int modelRow = tablaAlbumFavoritos.convertRowIndexToModel(selectedRow);
+
+                        // Obtiene el álbum seleccionado
+                        AlbumVistaDTO albumVista = this.albumes.get(modelRow);
+
+                        ObtenerAlbumBO albumBO = BOFactory.obtenerAlbumFactory();
+                        AlbumDTO albumDetallado = albumBO.obtenerAlbum(albumVista.getId());
+                        this.detallado = albumDetallado;
+                        // Actualiza el panel con la información del álbum seleccionado
+                        actualizarPanelInformacion(albumDetallado);
+                    } catch (BOException | NullPointerException ex) {
+                        // Muestra un mensaje de error si ocurre un problema al cargar los detalles
+                        JOptionPane.showMessageDialog(this,
+                                "Error al cargar detalles del álbum: " + ex.getMessage(),
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
+    }
 // Modify the cargarDatosDeLaBaseDeDatos method
+
     private void cargarDatosDeLaBaseDeDatos(DefaultTableModel modelo) {
         try {
             ObtenerAlbumesFavoritosBO favoritos = BOFactory.obtenerAlbumesFavoritosFactory();
