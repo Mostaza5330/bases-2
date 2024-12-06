@@ -35,7 +35,7 @@ public interface IFavoritoDAO {
     public List<Artista> obtenerArtistasFavoritos(String genero, 
             LocalDate fechaAgregacion, ObjectId idUsuario) throws DAOException;
     
-    public List<String> obtenerCancionesFavoritas(String genero, 
+    public List<Favorito> obtenerCancionesFavoritas(String genero, 
             LocalDate fechaAgregacion, ObjectId idUsuario) throws DAOException;
     
     public List<Album> obtenerAlbumesFavoritos(String genero, 

@@ -6,8 +6,10 @@ package com.bmn.negocio;
 
 import com.bdm.excepciones.DAOException;
 import com.bmd.daoInterfaces.IFavoritoDAO;
-import com.bmn.dto.CancionDTO;
+import com.bmd.entities.Favorito;
+import com.bmn.dto.FavoritoDTO;
 import com.bmn.dto.constantes.Genero;
+import com.bmn.dto.constantes.Tipo;
 import com.bmn.excepciones.BOException;
 import com.bmn.interfaces.IObtenerCancionesFavoritasBO;
 import com.bmn.singletonUsuario.UsuarioST;
@@ -29,11 +31,11 @@ public class ObtenerCancionesFavoritasBO implements IObtenerCancionesFavoritasBO
     }
     
     @Override
-    public List<CancionDTO> obtenerCancionesFavoritas(Genero genero, LocalDate fecha) throws BOException {
+    public List<FavoritoDTO> obtenerCancionesFavoritas(Genero genero, LocalDate fecha) throws BOException {
         return procesar(genero, fecha);
     }
     
-    private List<CancionDTO> procesar(Genero genero, LocalDate fecha) throws BOException {
+    private List<FavoritoDTO> procesar(Genero genero, LocalDate fecha) throws BOException {
         try{
             
             ObjectId idUsuario = UsuarioST.getInstance().getId();
@@ -44,16 +46,13 @@ public class ObtenerCancionesFavoritasBO implements IObtenerCancionesFavoritasBO
             System.out.println(genero1);
             System.out.println(fecha);
             
-            List<String> canciones = favoritoDAO.obtenerCancionesFavoritas(genero1, fecha, idUsuario);
-            List<CancionDTO> cancionesDTO = new ArrayList<>();
+            List<Favorito> canciones = favoritoDAO.obtenerCancionesFavoritas(genero1, fecha, idUsuario);
+            List<FavoritoDTO> cancionesDTO = new ArrayList<>();
             
-            for (String cancion : canciones) {
-                cancionesDTO.add(new CancionDTO(cancion));
+            for (Favorito cancion : canciones) {
+                cancionesDTO.add(toFavoritoDTO(cancion));
             }
             
-            for (CancionDTO cancionDTO : cancionesDTO) {
-                cancionDTO.setFavorito(true);
-            }
             
             return cancionesDTO;
         }
@@ -61,6 +60,17 @@ public class ObtenerCancionesFavoritasBO implements IObtenerCancionesFavoritasBO
             throw new BOException(ex.getMessage());
         }   
           
+    }
+    
+    private FavoritoDTO toFavoritoDTO(Favorito favoritoDTO){
+        FavoritoDTO favorito = new FavoritoDTO.Builder().
+                setIdUsuario(favoritoDTO.getIdUsuario()).
+                setIdReferencia(favoritoDTO.getIdReferencia().toString()).
+                setNombreCancion((favoritoDTO.getNombreCancion() == null) ? null : favoritoDTO.getNombreCancion()).
+                setTipo(Tipo.valueOf(favoritoDTO.getTipo())).
+                setFechaAgregacion(favoritoDTO.getFechaAgregacion()).
+                build();
+        return favorito;
     }
     
 }

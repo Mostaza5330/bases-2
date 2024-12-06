@@ -972,7 +972,9 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_salirMouseClicked
 
     private void artistaLb1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_artistaLb1MouseClicked
-        // TODO add your handling code here:
+        CancionesFavoritas favoritas = new CancionesFavoritas();
+        favoritas.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_artistaLb1MouseClicked
 
     private void artistaLb2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_artistaLb2MouseClicked

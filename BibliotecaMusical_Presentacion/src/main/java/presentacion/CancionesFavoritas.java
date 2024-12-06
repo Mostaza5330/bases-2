@@ -1,5 +1,6 @@
 package presentacion;
 
+import com.bmn.dto.FavoritoDTO;
 import com.bmn.dto.constantes.Genero;
 import com.bmn.excepciones.BOException;
 import com.bmn.factories.BOFactory;
@@ -9,8 +10,6 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.util.List;
 
 /**
@@ -25,20 +24,25 @@ public class CancionesFavoritas extends javax.swing.JFrame {
     private TableRowSorter<DefaultTableModel> sorter;
     private javax.swing.JPanel glassPanel;
     private List<Genero> generosRestringidos;
+    private List<FavoritoDTO> favoritos;
 
     public CancionesFavoritas() {
         try {
             // Inicializar componentes gráficos
             initComponents();
 
+            // Cargar tabla
+            cargarTablaloadTable();
+            
             // Configurar tabla para mostrar géneros restringidos
             configurarTabla();
 
-            // Configurar eventos de búsqueda y filtrado
-            configurarEventosBusqueda();
-
             // Cargar los géneros restringidos
             cargarGenerosRestringidos();
+            
+            //cargamos el comboBox
+            cargarComboBox();
+            
         } catch (Exception e) {
             // Manejo de excepciones generales
             JOptionPane.showMessageDialog(this,
@@ -48,6 +52,33 @@ public class CancionesFavoritas extends javax.swing.JFrame {
         }
     }
 
+    private void cargarTablaloadTable(){
+        String[] columns = {"Nombre", "Genero", "Fecha"};
+        DefaultTableModel tableModel = new DefaultTableModel(columns, 0);
+        
+//        try{
+            List<FavoritoDTO> cancionesFavoritas = this.favoritos;
+            
+            for (FavoritoDTO favorito : cancionesFavoritas) {
+                Object[] object = {
+                    favorito.getNombreCancion(),
+                    favorito.getGenero(),
+                    favorito.getFechaAgregacion()
+                };
+                tableModel.addRow(object);
+            }
+            
+            this.tablaBaneado.setModel(tableModel);
+            
+//        }catch(BOException de){
+//            JOptionPane.showMessageDialog(this, 
+//                    "Error al cargar las canciones: " + 
+//                    de.getMessage(),
+//                    "Error", 
+//                    JOptionPane.ERROR_MESSAGE);
+//        }
+    }
+    
     private void configurarTabla() {
         modeloTabla = new DefaultTableModel(new String[]{"GÉNERO RESTRINGIDO"}, 0) {
             @Override
@@ -99,16 +130,11 @@ public class CancionesFavoritas extends javax.swing.JFrame {
     public List<Genero> getGenerosRestringidos() {
         return generosRestringidos;
     }
-
-    private void configurarEventosBusqueda() {
-        // Configurar evento de búsqueda para el campo de texto
-        busqueda.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                String texto = busqueda.getText().trim();
-                buscarGenero(texto);
-            }
-        });
+    
+    private void cargarComboBox() {
+        for (Genero genero : Genero.values()) {
+            generoSinBan.addItem(genero.name());
+        }
     }
 
     private void buscarGenero(String texto) {
@@ -130,7 +156,6 @@ public class CancionesFavoritas extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        Fondo = new javax.swing.JPanel();
         menuDesplegablePanel = new javax.swing.JPanel();
         albumLb = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
@@ -147,28 +172,20 @@ public class CancionesFavoritas extends javax.swing.JFrame {
         jSeparator6 = new javax.swing.JSeparator();
         artistaLb2 = new javax.swing.JLabel();
         jSeparator7 = new javax.swing.JSeparator();
+        Fondo = new javax.swing.JPanel();
         panelRound1 = new controlador.PanelRound();
         jLabel1 = new javax.swing.JLabel();
         menuBtn = new javax.swing.JButton();
-        panelRound3 = new controlador.PanelRound();
-        busqueda = new javax.swing.JTextField();
-        panelInformacionAlbum = new controlador.PanelRound();
-        jLabel2 = new javax.swing.JLabel();
-        generoSinBan = new javax.swing.JComboBox<>();
-        generoBaneado = new javax.swing.JComboBox<>();
-        quitarBaneoBtn = new javax.swing.JButton();
-        banearBtn = new javax.swing.JButton();
-        quitarBaneoBtn1 = new javax.swing.JButton();
         panelRound5 = new controlador.PanelRound();
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaBaneado = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        Fondo.setBackground(new java.awt.Color(24, 40, 54));
-        Fondo.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        panelInformacionAlbum = new controlador.PanelRound();
+        jLabel2 = new javax.swing.JLabel();
+        generoSinBan = new javax.swing.JComboBox<>();
+        quitarBaneoBtn = new javax.swing.JButton();
+        jDateChooser1 = new com.toedter.calendar.JDateChooser();
+        btnLimpiar = new javax.swing.JButton();
 
         menuDesplegablePanel.setBackground(new java.awt.Color(58, 107, 128));
         menuDesplegablePanel.setPreferredSize(new java.awt.Dimension(290, 660));
@@ -323,7 +340,11 @@ public class CancionesFavoritas extends javax.swing.JFrame {
                     .addGap(52, 52, 52)))
         );
 
-        Fondo.add(menuDesplegablePanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 300, 660));
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        Fondo.setBackground(new java.awt.Color(24, 40, 54));
+        Fondo.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         panelRound1.setBackground(new java.awt.Color(58, 107, 128));
 
@@ -331,8 +352,9 @@ public class CancionesFavoritas extends javax.swing.JFrame {
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Canciones Favoritas");
 
-        menuBtn.setBackground(new java.awt.Color(58, 107, 128));
-        menuBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/media/menu.png"))); // NOI18N
+        menuBtn.setBackground(new java.awt.Color(102, 102, 255));
+        menuBtn.setFont(new java.awt.Font("Segoe UI", 0, 48)); // NOI18N
+        menuBtn.setText("<");
         menuBtn.setBorder(null);
         menuBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -340,146 +362,28 @@ public class CancionesFavoritas extends javax.swing.JFrame {
             }
         });
 
-        panelRound3.setBackground(new java.awt.Color(35, 58, 68));
-        panelRound3.setCursorHandEnabled(true);
-        panelRound3.setRoundBottomLeft(50);
-        panelRound3.setRoundBottomRight(50);
-        panelRound3.setRoundTopLeft(50);
-        panelRound3.setRoundTopRight(50);
-
-        busqueda.setBackground(new java.awt.Color(35, 58, 68));
-        busqueda.setForeground(new java.awt.Color(255, 255, 255));
-        busqueda.setBorder(null);
-        busqueda.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                busquedaActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout panelRound3Layout = new javax.swing.GroupLayout(panelRound3);
-        panelRound3.setLayout(panelRound3Layout);
-        panelRound3Layout.setHorizontalGroup(
-            panelRound3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound3Layout.createSequentialGroup()
-                .addContainerGap(18, Short.MAX_VALUE)
-                .addComponent(busqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(17, 17, 17))
-        );
-        panelRound3Layout.setVerticalGroup(
-            panelRound3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(busqueda, javax.swing.GroupLayout.DEFAULT_SIZE, 42, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
         javax.swing.GroupLayout panelRound1Layout = new javax.swing.GroupLayout(panelRound1);
         panelRound1.setLayout(panelRound1Layout);
         panelRound1Layout.setHorizontalGroup(
             panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelRound1Layout.createSequentialGroup()
-                .addGap(19, 19, 19)
+                .addGap(48, 48, 48)
                 .addComponent(menuBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(89, 89, 89)
                 .addComponent(jLabel1)
-                .addGap(31, 31, 31)
-                .addComponent(panelRound3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(555, Short.MAX_VALUE))
+                .addContainerGap(698, Short.MAX_VALUE))
         );
         panelRound1Layout.setVerticalGroup(
             panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelRound1Layout.createSequentialGroup()
                 .addGap(15, 15, 15)
-                .addComponent(menuBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(panelRound3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(menuBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(45, 45, 45))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         Fondo.add(panelRound1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-9, -5, 1290, 80));
-
-        panelInformacionAlbum.setBackground(new java.awt.Color(35, 58, 68));
-        panelInformacionAlbum.setRoundBottomLeft(30);
-        panelInformacionAlbum.setRoundBottomRight(30);
-        panelInformacionAlbum.setRoundTopLeft(30);
-        panelInformacionAlbum.setRoundTopRight(30);
-
-        jLabel2.setFont(new java.awt.Font("OCR A Extended", 0, 36)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("Añadir a favoritas");
-
-        generoSinBan.setBackground(new java.awt.Color(58, 107, 128));
-        generoSinBan.setEditable(true);
-        generoSinBan.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
-        generoSinBan.setForeground(new java.awt.Color(255, 255, 255));
-
-        generoBaneado.setBackground(new java.awt.Color(58, 107, 128));
-        generoBaneado.setEditable(true);
-        generoBaneado.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
-        generoBaneado.setForeground(new java.awt.Color(255, 255, 255));
-
-        quitarBaneoBtn.setBackground(new java.awt.Color(58, 107, 128));
-        quitarBaneoBtn.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
-        quitarBaneoBtn.setForeground(new java.awt.Color(255, 255, 255));
-        quitarBaneoBtn.setText("Regresar");
-
-        banearBtn.setBackground(new java.awt.Color(58, 107, 128));
-        banearBtn.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
-        banearBtn.setForeground(new java.awt.Color(255, 255, 255));
-        banearBtn.setText("Banear");
-
-        quitarBaneoBtn1.setBackground(new java.awt.Color(58, 107, 128));
-        quitarBaneoBtn1.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
-        quitarBaneoBtn1.setForeground(new java.awt.Color(255, 255, 255));
-        quitarBaneoBtn1.setText("Quitar Ban");
-
-        javax.swing.GroupLayout panelInformacionAlbumLayout = new javax.swing.GroupLayout(panelInformacionAlbum);
-        panelInformacionAlbum.setLayout(panelInformacionAlbumLayout);
-        panelInformacionAlbumLayout.setHorizontalGroup(
-            panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
-                .addGap(44, 44, 44)
-                .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(generoSinBan, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(banearBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE))
-                .addGap(164, 164, 164)
-                .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(generoBaneado, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(quitarBaneoBtn1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelInformacionAlbumLayout.createSequentialGroup()
-                .addContainerGap(106, Short.MAX_VALUE)
-                .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelInformacionAlbumLayout.createSequentialGroup()
-                        .addComponent(quitarBaneoBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(213, 213, 213))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelInformacionAlbumLayout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addGap(88, 88, 88))))
-        );
-        panelInformacionAlbumLayout.setVerticalGroup(
-            panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
-                .addGap(12, 12, 12)
-                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(generoSinBan, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(generoBaneado, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(22, 22, 22)
-                .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(banearBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 43, Short.MAX_VALUE)
-                    .addComponent(quitarBaneoBtn1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(18, 18, 18)
-                .addComponent(quitarBaneoBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(8, Short.MAX_VALUE))
-        );
-
-        Fondo.add(panelInformacionAlbum, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 100, 590, 260));
 
         panelRound5.setBackground(new java.awt.Color(35, 58, 68));
         panelRound5.setRoundBottomLeft(30);
@@ -490,15 +394,30 @@ public class CancionesFavoritas extends javax.swing.JFrame {
         tablaBaneado.setBackground(new java.awt.Color(35, 58, 68));
         tablaBaneado.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null},
-                {null},
-                {null},
-                {null}
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
             },
             new String [] {
-                "Genero"
+                "Genero", "Fecha", "Nombre"
             }
-        ));
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Object.class, java.lang.Object.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         tablaBaneado.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         tablaBaneado.setGridColor(new java.awt.Color(35, 58, 68));
         tablaBaneado.setSelectionBackground(new java.awt.Color(35, 58, 68));
@@ -522,18 +441,89 @@ public class CancionesFavoritas extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound5Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel3)
-                .addGap(59, 59, 59))
+                .addGap(76, 76, 76))
         );
         panelRound5Layout.setVerticalGroup(
             panelRound5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound5Layout.createSequentialGroup()
+                .addContainerGap()
                 .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 269, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(14, Short.MAX_VALUE))
         );
 
-        Fondo.add(panelRound5, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 380, 580, 330));
+        Fondo.add(panelRound5, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 100, 580, 330));
+
+        panelInformacionAlbum.setBackground(new java.awt.Color(35, 58, 68));
+        panelInformacionAlbum.setRoundBottomLeft(30);
+        panelInformacionAlbum.setRoundBottomRight(30);
+        panelInformacionAlbum.setRoundTopLeft(30);
+        panelInformacionAlbum.setRoundTopRight(30);
+
+        jLabel2.setFont(new java.awt.Font("OCR A Extended", 0, 36)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel2.setText("Filtros");
+
+        generoSinBan.setBackground(new java.awt.Color(58, 107, 128));
+        generoSinBan.setEditable(true);
+        generoSinBan.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
+        generoSinBan.setForeground(new java.awt.Color(255, 255, 255));
+        generoSinBan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                generoSinBanActionPerformed(evt);
+            }
+        });
+
+        quitarBaneoBtn.setBackground(new java.awt.Color(58, 107, 128));
+        quitarBaneoBtn.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
+        quitarBaneoBtn.setForeground(new java.awt.Color(255, 255, 255));
+        quitarBaneoBtn.setText("Regresar");
+
+        btnLimpiar.setText("Limpiar");
+
+        javax.swing.GroupLayout panelInformacionAlbumLayout = new javax.swing.GroupLayout(panelInformacionAlbum);
+        panelInformacionAlbum.setLayout(panelInformacionAlbumLayout);
+        panelInformacionAlbumLayout.setHorizontalGroup(
+            panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
+                .addGap(86, 86, 86)
+                .addComponent(generoSinBan, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(77, 77, 77)
+                .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(102, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelInformacionAlbumLayout.createSequentialGroup()
+                .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(quitarBaneoBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
+                        .addGap(23, 23, 23)
+                        .addComponent(btnLimpiar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel2)))
+                .addGap(213, 213, 213))
+        );
+        panelInformacionAlbumLayout.setVerticalGroup(
+            panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
+                .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
+                        .addGap(15, 15, 15)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
+                        .addGap(23, 23, 23)
+                        .addComponent(btnLimpiar)))
+                .addGap(35, 35, 35)
+                .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(generoSinBan, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)
+                    .addComponent(jDateChooser1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(57, 57, 57)
+                .addComponent(quitarBaneoBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(8, Short.MAX_VALUE))
+        );
+
+        Fondo.add(panelInformacionAlbum, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 440, 580, -1));
 
         getContentPane().add(Fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 740, 720));
 
@@ -553,29 +543,9 @@ public class CancionesFavoritas extends javax.swing.JFrame {
     }//GEN-LAST:event_artistasFavLbMouseClicked
 
     private void menuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBtnActionPerformed
-        int panelWidth = menuDesplegablePanel.getWidth();
-        int targetX = isMenuVisible ? -panelWidth : 0; // Determina el objetivo según el estado
-        isMenuVisible = !isMenuVisible; // Alternar estado
-
-        // Desactivar tabla cuando el menú está visible
-        tablaBaneado.setEnabled(!isMenuVisible);
-
-        javax.swing.Timer timer = new javax.swing.Timer(15, new java.awt.event.ActionListener() {
-            int currentX = menuDesplegablePanel.getX();
-
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                if ((isMenuVisible && currentX < targetX) || (!isMenuVisible && currentX > targetX)) {
-                    currentX += isMenuVisible ? 15 : -15; // Mover según el estado
-                    menuDesplegablePanel.setLocation(currentX, menuDesplegablePanel.getY());
-                } else {
-                    ((javax.swing.Timer) e.getSource()).stop();
-                }
-            }
-        });
-
-        timer.start();
-
+        Principal principal = new Principal(); 
+        principal.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_menuBtnActionPerformed
 
     private void artistaLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_artistaLbMouseClicked
@@ -617,9 +587,9 @@ public class CancionesFavoritas extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_artistaLb2MouseClicked
 
-    private void busquedaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_busquedaActionPerformed
+    private void generoSinBanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generoSinBanActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_busquedaActionPerformed
+    }//GEN-LAST:event_generoSinBanActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Fondo;
@@ -629,10 +599,9 @@ public class CancionesFavoritas extends javax.swing.JFrame {
     private javax.swing.JLabel artistaLb1;
     private javax.swing.JLabel artistaLb2;
     private javax.swing.JLabel artistasFavLb;
-    private javax.swing.JButton banearBtn;
-    private javax.swing.JTextField busqueda;
-    private javax.swing.JComboBox<String> generoBaneado;
+    private javax.swing.JButton btnLimpiar;
     private javax.swing.JComboBox<String> generoSinBan;
+    private com.toedter.calendar.JDateChooser jDateChooser1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -648,11 +617,9 @@ public class CancionesFavoritas extends javax.swing.JFrame {
     private javax.swing.JPanel menuDesplegablePanel;
     private controlador.PanelRound panelInformacionAlbum;
     private controlador.PanelRound panelRound1;
-    private controlador.PanelRound panelRound3;
     private controlador.PanelRound panelRound5;
     private javax.swing.JLabel perfilLb;
     private javax.swing.JButton quitarBaneoBtn;
-    private javax.swing.JButton quitarBaneoBtn1;
     private javax.swing.JLabel salir;
     private javax.swing.JTable tablaBaneado;
     // End of variables declaration//GEN-END:variables
