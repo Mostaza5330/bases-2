@@ -279,7 +279,8 @@ public class FavoritoDAO implements IFavoritoDAO {
      * @throws DAOException En caso de excepcion en la consulta.
      */
     @Override
-    public List<String> obtenerCancionesFavoritas(String genero, LocalDate fechaAgregacion, ObjectId idUsuario) throws DAOException {
+    public List<Favorito> obtenerCancionesFavoritas(String genero, 
+            LocalDate fechaAgregacion, ObjectId idUsuario) throws DAOException {
         try {
             MongoCollection<Usuario> collection = conexion.getCollection("usuarios", Usuario.class);
 
@@ -288,13 +289,13 @@ public class FavoritoDAO implements IFavoritoDAO {
                 throw new DAOException("Usuario no encontrado");
             }
 
-            List<String> cancionesFavoritas = new ArrayList<>();
+            List<Favorito> cancionesFavoritas = new ArrayList<>();
             for (Favorito favorito : usuario.getFavoritos()) {
                 if ("CANCION".equals(favorito.getTipo()) && 
                     (genero == null || genero.isEmpty() || genero.equals(favorito.getGenero())) && 
                     (fechaAgregacion == null || fechaAgregacion.equals(favorito.getFechaAgregacion()))) {
 
-                    cancionesFavoritas.add(favorito.getNombreCancion());
+                    cancionesFavoritas.add(favorito);
                 }
             }
             return cancionesFavoritas;
@@ -302,6 +303,7 @@ public class FavoritoDAO implements IFavoritoDAO {
             throw new DAOException("Error al obtener las canciones favoritas", e);
         }
     }
+
 
     /**
      * 

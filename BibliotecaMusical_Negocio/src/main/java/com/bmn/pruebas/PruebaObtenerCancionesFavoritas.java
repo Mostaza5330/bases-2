@@ -21,13 +21,13 @@ public class PruebaObtenerCancionesFavoritas {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws BOException {
-        ObtenerCancionesFavoritasBO favoritas = BOFactory.obtenerCancionesFavoritosFactory();
-        
-        List<CancionDTO> canciones = favoritas.obtenerCancionesFavoritas(null, LocalDate.of(2024, 1, 25));
-        
-        for (CancionDTO cancion : canciones) {
-            System.out.println(cancion.toString());
-        }
+//        ObtenerCancionesFavoritasBO favoritas = BOFactory.obtenerCancionesFavoritosFactory();
+//        
+//        List<CancionDTO> canciones = favoritas.obtenerCancionesFavoritas(null, LocalDate.of(2024, 1, 25));
+//        
+//        for (CancionDTO cancion : canciones) {
+//            System.out.println(cancion.toString());
+//        }
     }
     
 }

@@ -422,7 +422,7 @@ public class Baneado extends javax.swing.JFrame {
                 .addContainerGap(8, Short.MAX_VALUE))
         );
 
-        Fondo.add(panelInformacionAlbum, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 100, 590, 260));
+        Fondo.add(panelInformacionAlbum, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 100, 590, 260));
 
         panelRound5.setBackground(new java.awt.Color(35, 58, 68));
         panelRound5.setRoundBottomLeft(30);
@@ -476,7 +476,7 @@ public class Baneado extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        Fondo.add(panelRound5, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 380, 580, 330));
+        Fondo.add(panelRound5, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 380, 580, 330));
 
         getContentPane().add(Fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 740, 720));
 
