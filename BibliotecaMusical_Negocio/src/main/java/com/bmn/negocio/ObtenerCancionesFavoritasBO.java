@@ -36,31 +36,32 @@ public class ObtenerCancionesFavoritasBO implements IObtenerCancionesFavoritasBO
     }
     
     private List<FavoritoDTO> procesar(Genero genero, LocalDate fecha) throws BOException {
-        try{
-            
+        try {
             ObjectId idUsuario = UsuarioST.getInstance().getId();
-            
             String genero1 = (genero == null) ? null : genero.name();
             LocalDate local = (fecha == null) ? null : fecha;
-          
-            System.out.println(genero1);
-            System.out.println(fecha);
-            
-            List<Favorito> canciones = favoritoDAO.obtenerCancionesFavoritas(genero1, fecha, idUsuario);
+
+            System.out.println("Genero: " + genero1);
+            System.out.println("Fecha: " + local);
+
+            List<Favorito> canciones = favoritoDAO.obtenerCancionesFavoritas(genero1, local, idUsuario);
+
+            if (canciones == null || canciones.isEmpty()) {
+                System.out.println("La lista de canciones es nula o vacía.");
+                return null;
+            }
+
             List<FavoritoDTO> cancionesDTO = new ArrayList<>();
-            
             for (Favorito cancion : canciones) {
                 cancionesDTO.add(toFavoritoDTO(cancion));
             }
-            
-            
+
             return cancionesDTO;
+        } catch (DAOException ex) {
+            throw new BOException("Error al procesar las canciones favoritas: " + ex.getMessage(), ex);
         }
-        catch(DAOException ex){
-            throw new BOException(ex.getMessage());
-        }   
-          
     }
+
     
     private FavoritoDTO toFavoritoDTO(Favorito favoritoDTO){
         FavoritoDTO favorito = new FavoritoDTO.Builder().

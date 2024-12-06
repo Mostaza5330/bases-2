@@ -297,14 +297,20 @@ public class FavoritoDAO implements IFavoritoDAO {
 
             // Si la lista de favoritos es nula o vacía, retornar null
             if (favoritos == null || favoritos.isEmpty()) {
+                System.out.println("si esta vacia");
                 return null;
             }
 
             // Inicializar la lista de canciones favoritas
             List<Favorito> cancionesFavoritas = new ArrayList<>();
 
+            System.out.println("si llego al iterador");
             // Iterar sobre los favoritos del usuario
-            for (Favorito favorito : favoritos) {
+            if (cancionesFavoritas == null || cancionesFavoritas.isEmpty() ) {
+                return null;
+            }
+            else{
+                for (Favorito favorito : favoritos) {
                 System.out.println("Verificando favorito: " + favorito);
 
                 // Verificar si el favorito es una canción y coincide con los criterios
@@ -314,14 +320,17 @@ public class FavoritoDAO implements IFavoritoDAO {
 
                     cancionesFavoritas.add(favorito);
                 }
+                
+                // Retornar la lista de canciones favoritas
+                return cancionesFavoritas;
             }
-
-            // Retornar la lista de canciones favoritas
-            return cancionesFavoritas;
+         }
+            
         } catch (Exception e) {
             e.printStackTrace(); // Imprimir el stack trace para depuración
             throw new DAOException("Error al obtener las canciones favoritas", e);
         }
+        return null;
     }
 
 

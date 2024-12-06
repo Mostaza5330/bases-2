@@ -59,6 +59,21 @@ public class CancionesFavoritas extends javax.swing.JFrame {
         }
     }
 
+    private void cargarInstancias(){
+        try{
+        ObtenerCancionesFavoritasBO favrourite = BOFactory.obtenerCancionesFavoritosFactory();
+            
+        this.favoritos = favrourite.obtenerCancionesFavoritas(null, null);
+        }
+        catch(BOException ex){
+            JOptionPane.showMessageDialog(this, 
+                    "Error: " + 
+                    ex.getMessage(),
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
     private void cargarTablaloadTable(){
         String[] columns = {"Nombre", "Genero", "Fecha"};
         DefaultTableModel tableModel = new DefaultTableModel(columns, 0);
