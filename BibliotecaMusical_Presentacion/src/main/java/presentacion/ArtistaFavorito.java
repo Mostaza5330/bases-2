@@ -1,217 +1,57 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package presentacion;
 
-import java.awt.Graphics2D;
 import com.bmn.dto.ArtistaVistaDTO;
+import com.bmn.dto.constantes.Genero;
 import com.bmn.excepciones.BOException;
 import com.bmn.factories.BOFactory;
 import com.bmn.negocio.ObtenerArtistasFavoritosBO;
-import controlador.RenderCeldas;
-import javax.swing.*;
+import java.awt.Image;
+import java.time.LocalDate;
 import java.util.List;
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.util.regex.PatternSyntaxException;
-import javax.swing.table.TableRowSorter;
 
 /**
- *
- * @author Sebastian Murrieta Verduzco -233463
+ * Clase para gestionar la interfaz gráfica de artistas favoritos.
  */
 public class ArtistaFavorito extends javax.swing.JFrame {
 
-    private boolean isMenuVisible = true;
-    private List<ArtistaVistaDTO> artistas;
-    private ObtenerArtistasFavoritosBO favoritos;
+    private ObtenerArtistasFavoritosBO obtenerArtistasFavoritosBO;
 
     public ArtistaFavorito() {
         try {
-            // Initialize components
             initComponents();
-
-            // Configure table
+            cargarComboBox();
             configurarTabla();
-
-            // Configure search functionality
-            configurarBusqueda();
-
-            // Initialize business logic
-            this.favoritos = BOFactory.obtenerArtistasFavoritosFactory();
-
-            // Move menu panel out of view
-            menuDesplegablePanel.setLocation(-menuDesplegablePanel.getWidth(),
-                    menuDesplegablePanel.getY());
-
+            this.obtenerArtistasFavoritosBO = BOFactory.obtenerArtistasFavoritosFactory();
+            cargarArtistasFavoritos(null, null); // Carga inicial sin filtros
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
-                    "Error al inicializar la ventana de artistas favoritos: " + e.getMessage(),
+                    "Error al inicializar: " + e.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void configurarBusqueda() {
-        // Añadir listener al botón de búsqueda
-        buscarBtn.addActionListener(e -> {
-            String termino = busqueda.getText().trim();
-            filterTable(termino);
-        });
-
-        // Añadir listener al campo de texto para búsqueda en tiempo real
-        busqueda.addKeyListener(new java.awt.event.KeyAdapter() {
-            @Override
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                String termino = busqueda.getText().trim();
-                filterTable(termino);
-            }
-        });
-    }
-
-    private void filterTable(String searchTerm) {
-        try {
-            DefaultTableModel model = (DefaultTableModel) tablaArtistaFav.getModel();
-            TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
-            tablaArtistaFav.setRowSorter(sorter);
-
-            if (searchTerm.length() == 0) {
-                sorter.setRowFilter(null);
-            } else {
-                // Ignorar mayúsculas/minúsculas y buscar en la columna del nombre del artista
-                RowFilter<DefaultTableModel, Object> filter = RowFilter.regexFilter(
-                        "(?i)" + searchTerm, 1 // 1 es el índice de la columna del nombre del artista
-                );
-                sorter.setRowFilter(filter);
-            }
-        } catch (PatternSyntaxException pse) {
-            System.err.println("Error en el patrón de búsqueda: " + pse.getMessage());
-            // Remover el filtro si hay un error en el patrón
-            tablaArtistaFav.setRowSorter(null);
+    private void cargarComboBox() {
+        for (Genero genero : Genero.values()) {
+            generoFiltro.addItem(genero.name());
         }
     }
 
-    private void configurarTabla() {
-        DefaultTableModel modelo = new DefaultTableModel(
-                new String[]{"IMAGEN", "NOMBRE DEL ARTISTA"}, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 0) {
-                    return ImageIcon.class;
-                }
-                return Object.class;
-            }
-        };
-
-        tablaArtistaFav.setModel(modelo);
-        tablaArtistaFav.getTableHeader().setReorderingAllowed(false);
-
-        // Configure custom renderer
-        RenderCeldas render = new RenderCeldas(tablaArtistaFav);
-        render.setColumnAlignment(0, SwingConstants.CENTER);
-        render.setColumnAlignment(1, SwingConstants.CENTER);
-
-        // Configure colors and styles
-        tablaArtistaFav.setBackground(new Color(35, 58, 68));
-        tablaArtistaFav.setForeground(Color.WHITE);
-        tablaArtistaFav.setRowHeight(50);
-        tablaArtistaFav.setSelectionBackground(new Color(58, 107, 128));
-        tablaArtistaFav.setSelectionForeground(Color.WHITE);
-        tablaArtistaFav.getTableHeader().setBackground(new Color(35, 58, 68));
-        tablaArtistaFav.getTableHeader().setForeground(Color.WHITE);
-        tablaArtistaFav.setShowHorizontalLines(true);
-        tablaArtistaFav.setShowVerticalLines(false);
-        tablaArtistaFav.setGridColor(new Color(255, 255, 255, 50));
-
-        // Configure columns
-        tablaArtistaFav.getColumnModel().getColumn(0).setPreferredWidth(100);
-        tablaArtistaFav.getColumnModel().getColumn(1).setPreferredWidth(200);
-
-        // Configure scroll pane
-        jScrollPane1.setBorder(null);
-        jScrollPane1.getViewport().setBackground(new Color(35, 58, 68));
-
-        cargarDatosDeLaBaseDeDatos(modelo);
-    }
-
-    private ImageIcon cargarImagen(String nombreImagen) {
+    private void cargarArtistasFavoritos(Genero genero, LocalDate fecha) {
         try {
-            if (nombreImagen == null || nombreImagen.trim().isEmpty()) {
-                return crearImagenPorDefecto();
-            }
+            List<ArtistaVistaDTO> artistas = obtenerArtistasFavoritosBO.obtenerArtistasFavoritos(genero, fecha);
 
-            String rutaCompleta = "src/ImagenesArtista/" + nombreImagen;
-            File archivoImagen = new File(rutaCompleta);
-
-            if (!archivoImagen.exists()) {
-                System.err.println("Imagen no encontrada: " + rutaCompleta);
-                return crearImagenPorDefecto();
-            }
-
-            ImageIcon originalIcon = new ImageIcon(rutaCompleta);
-            if (originalIcon.getIconWidth() <= 0) {
-                return crearImagenPorDefecto();
-            }
-
-            Image scaledImage = originalIcon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
-            return new ImageIcon(scaledImage);
-
-        } catch (Exception e) {
-            System.err.println("Error al cargar imagen: " + nombreImagen);
-            e.printStackTrace();
-            return crearImagenPorDefecto();
-        }
-    }
-
-    private ImageIcon crearImagenPorDefecto() {
-        BufferedImage placeholderImage = new BufferedImage(50, 50, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = placeholderImage.createGraphics();
-
-        g2d.setColor(new Color(200, 200, 200));
-        g2d.fillRect(0, 0, 50, 50);
-        g2d.setColor(Color.DARK_GRAY);
-        g2d.drawRect(0, 0, 49, 49);
-        g2d.setColor(Color.BLACK);
-        g2d.setFont(new Font("Arial", Font.BOLD, 10));
-        g2d.drawString("No Image", 5, 30);
-        g2d.dispose();
-
-        return new ImageIcon(placeholderImage);
-    }
-
-    private void cargarDatosDeLaBaseDeDatos(DefaultTableModel modelo) {
-        try {
-            // Get favorite artists (null parameters to get all)
-            List<ArtistaVistaDTO> artistas = favoritos.obtenerArtistasFavoritos(null, null);
-            this.artistas = artistas;
-
-            System.out.println("Número de artistas encontrados: " + artistas.size());
-
+            DefaultTableModel modelo = (DefaultTableModel) tablaArtistasFavoritos.getModel();
             modelo.setRowCount(0);
 
             for (ArtistaVistaDTO artista : artistas) {
-                System.out.println("Artista: " + artista.getNombre()
-                        + ", Imagen: " + artista.getImagen());
-
-                ImageIcon imagen = cargarImagen(artista.getImagen());
-
-                modelo.addRow(new Object[]{
-                    imagen,
-                    artista.getNombre()
-                });
+                ImageIcon icono = cargarImagen(artista.getImagen());
+                modelo.addRow(new Object[]{icono, artista.getNombre()});
             }
-
-            System.out.println("Filas añadidas a la tabla: " + modelo.getRowCount());
         } catch (BOException e) {
-            e.printStackTrace();
             JOptionPane.showMessageDialog(this,
                     "Error al cargar artistas favoritos: " + e.getMessage(),
                     "Error",
@@ -219,33 +59,83 @@ public class ArtistaFavorito extends javax.swing.JFrame {
         }
     }
 
+    private ImageIcon cargarImagen(String ruta) {
+        if (ruta == null || ruta.isEmpty()) {
+            return null;
+        }
+        ImageIcon originalIcon = new ImageIcon(ruta);
+        Image scaledImage = originalIcon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+        return new ImageIcon(scaledImage);
+    }
+
+    private void configurarTabla() {
+        DefaultTableModel modelo = new DefaultTableModel(
+                new String[]{"Imagen", "Nombre"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                return columnIndex == 0 ? ImageIcon.class : String.class;
+            }
+        };
+        tablaArtistasFavoritos.setModel(modelo);
+    }
+
+    private void aplicarFiltros() {
+        Genero genero = generoFiltro.getSelectedItem().equals("Todos")
+                ? null
+                : Genero.valueOf((String) generoFiltro.getSelectedItem());
+        LocalDate fecha = fechaFiltro.getDate() != null
+                ? fechaFiltro.getDate().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+                : null;
+        cargarArtistasFavoritos(genero, fecha);
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         Fondo = new javax.swing.JPanel();
-        menuDesplegablePanel = new javax.swing.JPanel();
-        albumLb = new javax.swing.JLabel();
-        jSeparator1 = new javax.swing.JSeparator();
-        albumFavLb = new javax.swing.JLabel();
-        jSeparator2 = new javax.swing.JSeparator();
-        artistaLb = new javax.swing.JLabel();
-        jSeparator3 = new javax.swing.JSeparator();
-        artistasFavLb = new javax.swing.JLabel();
-        jSeparator4 = new javax.swing.JSeparator();
-        salir = new javax.swing.JLabel();
-        jSeparator5 = new javax.swing.JSeparator();
-        perfilLb = new javax.swing.JLabel();
-        panelRound1 = new controlador.PanelRound();
-        jLabel1 = new javax.swing.JLabel();
-        panelRound3 = new controlador.PanelRound();
-        busqueda = new javax.swing.JTextField();
-        buscarBtn = new javax.swing.JButton();
-        menuBtn = new javax.swing.JButton();
-        panelInformacionAlbum = new controlador.PanelRound();
         panelRound5 = new controlador.PanelRound();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tablaArtistaFav = new javax.swing.JTable();
+        tablaArtistasFavoritos = new javax.swing.JTable();
+        menu = new controlador.PanelRound();
+        albumFavLb = new javax.swing.JLabel();
+        artistaLb = new javax.swing.JLabel();
+        artistasFavLb = new javax.swing.JLabel();
+        perfilLb = new javax.swing.JLabel();
+        jSeparator6 = new javax.swing.JSeparator();
+        jSeparator7 = new javax.swing.JSeparator();
+        jSeparator8 = new javax.swing.JSeparator();
+        salir = new javax.swing.JLabel();
+        albumLb = new javax.swing.JLabel();
+        cancionesFavLb = new javax.swing.JLabel();
+        baneadosLb = new javax.swing.JLabel();
+        jSeparator9 = new javax.swing.JSeparator();
+        jSeparator10 = new javax.swing.JSeparator();
+        generoFiltro = new javax.swing.JComboBox<>();
+        fechaFiltro = new com.toedter.calendar.JDateChooser();
+        limpiarTodosFiltrosBtn = new javax.swing.JButton();
+        panelInformacionAlbum = new controlador.PanelRound();
+        jLabel3 = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        ImagenArtistaPanel = new javax.swing.JPanel();
+        imagenArtista = new javax.swing.JLabel();
+        nombreDelArtistaTxt = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        Canciones = new javax.swing.JScrollPane();
+        ListaDeIntegrantesTabla = new javax.swing.JTable();
+        tipoArtistaTxt = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+        generoTxt = new javax.swing.JTextField();
+        agregarFavoritoAlbumBtn = new javax.swing.JButton();
+        jPanel4 = new javax.swing.JPanel();
+        Canciones1 = new javax.swing.JScrollPane();
+        ListaDeCancionesArtista = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -253,246 +143,14 @@ public class ArtistaFavorito extends javax.swing.JFrame {
         Fondo.setBackground(new java.awt.Color(24, 40, 54));
         Fondo.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        menuDesplegablePanel.setBackground(new java.awt.Color(58, 107, 128));
-        menuDesplegablePanel.setPreferredSize(new java.awt.Dimension(290, 660));
-
-        albumLb.setFont(new java.awt.Font("OCR A Extended", 0, 24)); // NOI18N
-        albumLb.setForeground(new java.awt.Color(255, 255, 255));
-        albumLb.setText("Album");
-        albumLb.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        albumLb.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                albumLbMouseClicked(evt);
-            }
-        });
-
-        albumFavLb.setFont(new java.awt.Font("OCR A Extended", 0, 24)); // NOI18N
-        albumFavLb.setForeground(new java.awt.Color(255, 255, 255));
-        albumFavLb.setText("Album Favoritos");
-        albumFavLb.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        albumFavLb.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                albumFavLbMouseClicked(evt);
-            }
-        });
-
-        artistaLb.setFont(new java.awt.Font("OCR A Extended", 0, 24)); // NOI18N
-        artistaLb.setForeground(new java.awt.Color(255, 255, 255));
-        artistaLb.setText("Artista");
-        artistaLb.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        artistaLb.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                artistaLbMouseClicked(evt);
-            }
-        });
-
-        artistasFavLb.setFont(new java.awt.Font("OCR A Extended", 0, 24)); // NOI18N
-        artistasFavLb.setForeground(new java.awt.Color(255, 255, 255));
-        artistasFavLb.setText("Artistas Favoritos");
-        artistasFavLb.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        artistasFavLb.setEnabled(false);
-        artistasFavLb.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                artistasFavLbMouseClicked(evt);
-            }
-        });
-
-        salir.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
-        salir.setForeground(new java.awt.Color(255, 255, 255));
-        salir.setText("SALIR");
-        salir.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        salir.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                salirMouseClicked(evt);
-            }
-        });
-
-        perfilLb.setFont(new java.awt.Font("OCR A Extended", 0, 24)); // NOI18N
-        perfilLb.setForeground(new java.awt.Color(255, 255, 255));
-        perfilLb.setText("Mi perfil");
-        perfilLb.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        perfilLb.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                perfilLbMouseClicked(evt);
-            }
-        });
-
-        javax.swing.GroupLayout menuDesplegablePanelLayout = new javax.swing.GroupLayout(menuDesplegablePanel);
-        menuDesplegablePanel.setLayout(menuDesplegablePanelLayout);
-        menuDesplegablePanelLayout.setHorizontalGroup(
-            menuDesplegablePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(menuDesplegablePanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(menuDesplegablePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(albumLb, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jSeparator1)
-                    .addComponent(albumFavLb, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jSeparator2)
-                    .addComponent(artistaLb, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jSeparator3)
-                    .addComponent(artistasFavLb, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
-                    .addComponent(jSeparator4)
-                    .addComponent(jSeparator5)
-                    .addGroup(menuDesplegablePanelLayout.createSequentialGroup()
-                        .addComponent(salir)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
-            .addGroup(menuDesplegablePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(menuDesplegablePanelLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(perfilLb, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addContainerGap()))
-        );
-        menuDesplegablePanelLayout.setVerticalGroup(
-            menuDesplegablePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(menuDesplegablePanelLayout.createSequentialGroup()
-                .addGap(23, 23, 23)
-                .addComponent(albumLb)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(albumFavLb)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(artistaLb)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(artistasFavLb)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSeparator4, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 401, Short.MAX_VALUE)
-                .addComponent(jSeparator5, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(salir)
-                .addGap(8, 8, 8))
-            .addGroup(menuDesplegablePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, menuDesplegablePanelLayout.createSequentialGroup()
-                    .addContainerGap(582, Short.MAX_VALUE)
-                    .addComponent(perfilLb)
-                    .addGap(52, 52, 52)))
-        );
-
-        Fondo.add(menuDesplegablePanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 290, 660));
-
-        panelRound1.setBackground(new java.awt.Color(58, 107, 128));
-
-        jLabel1.setFont(new java.awt.Font("OCR A Extended", 0, 36)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("Artistas Favoritos");
-
-        panelRound3.setBackground(new java.awt.Color(35, 58, 68));
-        panelRound3.setCursorHandEnabled(true);
-        panelRound3.setRoundBottomLeft(50);
-        panelRound3.setRoundBottomRight(50);
-        panelRound3.setRoundTopLeft(50);
-        panelRound3.setRoundTopRight(50);
-
-        busqueda.setBackground(new java.awt.Color(35, 58, 68));
-        busqueda.setForeground(new java.awt.Color(255, 255, 255));
-        busqueda.setBorder(null);
-        busqueda.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                busquedaActionPerformed(evt);
-            }
-        });
-
-        buscarBtn.setBackground(new java.awt.Color(35, 58, 68));
-        buscarBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/media/lupa.png"))); // NOI18N
-        buscarBtn.setBorder(null);
-        buscarBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buscarBtnActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout panelRound3Layout = new javax.swing.GroupLayout(panelRound3);
-        panelRound3.setLayout(panelRound3Layout);
-        panelRound3Layout.setHorizontalGroup(
-            panelRound3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelRound3Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addComponent(busqueda, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(buscarBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(21, 21, 21))
-        );
-        panelRound3Layout.setVerticalGroup(
-            panelRound3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelRound3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(buscarBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(busqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(8, 8, 8))
-        );
-
-        menuBtn.setBackground(new java.awt.Color(58, 107, 128));
-        menuBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/media/menu.png"))); // NOI18N
-        menuBtn.setBorder(null);
-        menuBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuBtnActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout panelRound1Layout = new javax.swing.GroupLayout(panelRound1);
-        panelRound1.setLayout(panelRound1Layout);
-        panelRound1Layout.setHorizontalGroup(
-            panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelRound1Layout.createSequentialGroup()
-                .addGap(19, 19, 19)
-                .addComponent(menuBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(37, 37, 37)
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 359, Short.MAX_VALUE)
-                .addComponent(panelRound3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(126, 126, 126))
-        );
-        panelRound1Layout.setVerticalGroup(
-            panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelRound1Layout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addComponent(menuBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(panelRound3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(45, 45, 45))
-        );
-
-        Fondo.add(panelRound1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-9, -5, 1290, 80));
-
-        panelInformacionAlbum.setBackground(new java.awt.Color(35, 58, 68));
-        panelInformacionAlbum.setRoundBottomLeft(30);
-        panelInformacionAlbum.setRoundBottomRight(30);
-        panelInformacionAlbum.setRoundTopLeft(30);
-        panelInformacionAlbum.setRoundTopRight(30);
-
-        javax.swing.GroupLayout panelInformacionAlbumLayout = new javax.swing.GroupLayout(panelInformacionAlbum);
-        panelInformacionAlbum.setLayout(panelInformacionAlbumLayout);
-        panelInformacionAlbumLayout.setHorizontalGroup(
-            panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 590, Short.MAX_VALUE)
-        );
-        panelInformacionAlbumLayout.setVerticalGroup(
-            panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 260, Short.MAX_VALUE)
-        );
-
-        Fondo.add(panelInformacionAlbum, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 90, 590, 260));
-
         panelRound5.setBackground(new java.awt.Color(35, 58, 68));
         panelRound5.setRoundBottomLeft(30);
         panelRound5.setRoundBottomRight(30);
         panelRound5.setRoundTopLeft(30);
         panelRound5.setRoundTopRight(30);
 
-        tablaArtistaFav.setBackground(new java.awt.Color(35, 58, 68));
-        tablaArtistaFav.setModel(new javax.swing.table.DefaultTableModel(
+        tablaArtistasFavoritos.setBackground(new java.awt.Color(35, 58, 68));
+        tablaArtistasFavoritos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null},
                 {null, null, null},
@@ -503,12 +161,12 @@ public class ArtistaFavorito extends javax.swing.JFrame {
                 "Imagen", "Nombre", "Artista"
             }
         ));
-        tablaArtistaFav.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        tablaArtistaFav.setGridColor(new java.awt.Color(35, 58, 68));
-        tablaArtistaFav.setSelectionBackground(new java.awt.Color(35, 58, 68));
-        jScrollPane1.setViewportView(tablaArtistaFav);
-        if (tablaArtistaFav.getColumnModel().getColumnCount() > 0) {
-            tablaArtistaFav.getColumnModel().getColumn(0).setPreferredWidth(200);
+        tablaArtistasFavoritos.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        tablaArtistasFavoritos.setGridColor(new java.awt.Color(35, 58, 68));
+        tablaArtistasFavoritos.setSelectionBackground(new java.awt.Color(35, 58, 68));
+        jScrollPane1.setViewportView(tablaArtistasFavoritos);
+        if (tablaArtistasFavoritos.getColumnModel().getColumnCount() > 0) {
+            tablaArtistasFavoritos.getColumnModel().getColumn(0).setPreferredWidth(200);
         }
 
         javax.swing.GroupLayout panelRound5Layout = new javax.swing.GroupLayout(panelRound5);
@@ -530,71 +188,451 @@ public class ArtistaFavorito extends javax.swing.JFrame {
 
         Fondo.add(panelRound5, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 90, 510, 600));
 
+        menu.setBackground(new java.awt.Color(58, 107, 128));
+
+        albumFavLb.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
+        albumFavLb.setForeground(new java.awt.Color(255, 255, 255));
+        albumFavLb.setText("Album Favoritos");
+        albumFavLb.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        albumFavLb.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                albumFavLbMouseClicked(evt);
+            }
+        });
+
+        artistaLb.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
+        artistaLb.setForeground(new java.awt.Color(255, 255, 255));
+        artistaLb.setText("Artista");
+        artistaLb.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        artistaLb.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                artistaLbMouseClicked(evt);
+            }
+        });
+
+        artistasFavLb.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
+        artistasFavLb.setForeground(new java.awt.Color(255, 255, 255));
+        artistasFavLb.setText("Artistas Favoritos");
+        artistasFavLb.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        artistasFavLb.setEnabled(false);
+        artistasFavLb.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                artistasFavLbMouseClicked(evt);
+            }
+        });
+
+        perfilLb.setFont(new java.awt.Font("OCR A Extended", 0, 24)); // NOI18N
+        perfilLb.setForeground(new java.awt.Color(255, 255, 255));
+        perfilLb.setText("Mi perfil");
+        perfilLb.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        perfilLb.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                perfilLbMouseClicked(evt);
+            }
+        });
+
+        jSeparator6.setForeground(new java.awt.Color(24, 40, 54));
+        jSeparator6.setOrientation(javax.swing.SwingConstants.VERTICAL);
+
+        jSeparator7.setForeground(new java.awt.Color(24, 40, 54));
+        jSeparator7.setOrientation(javax.swing.SwingConstants.VERTICAL);
+
+        jSeparator8.setForeground(new java.awt.Color(24, 40, 54));
+        jSeparator8.setOrientation(javax.swing.SwingConstants.VERTICAL);
+
+        salir.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
+        salir.setForeground(new java.awt.Color(255, 255, 255));
+        salir.setText("SALIR");
+        salir.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        salir.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                salirMouseClicked(evt);
+            }
+        });
+
+        albumLb.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
+        albumLb.setForeground(new java.awt.Color(255, 255, 255));
+        albumLb.setText("      Album");
+        albumLb.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        albumLb.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                albumLbMouseClicked(evt);
+            }
+        });
+
+        cancionesFavLb.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
+        cancionesFavLb.setForeground(new java.awt.Color(255, 255, 255));
+        cancionesFavLb.setText("Canciones Favoritas");
+        cancionesFavLb.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        cancionesFavLb.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cancionesFavLbMouseClicked(evt);
+            }
+        });
+
+        baneadosLb.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
+        baneadosLb.setForeground(new java.awt.Color(255, 255, 255));
+        baneadosLb.setText("Baneados");
+        baneadosLb.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        baneadosLb.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                baneadosLbMouseClicked(evt);
+            }
+        });
+
+        jSeparator9.setForeground(new java.awt.Color(24, 40, 54));
+        jSeparator9.setOrientation(javax.swing.SwingConstants.VERTICAL);
+
+        jSeparator10.setForeground(new java.awt.Color(24, 40, 54));
+        jSeparator10.setOrientation(javax.swing.SwingConstants.VERTICAL);
+
+        javax.swing.GroupLayout menuLayout = new javax.swing.GroupLayout(menu);
+        menu.setLayout(menuLayout);
+        menuLayout.setHorizontalGroup(
+            menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(menuLayout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addComponent(albumLb, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jSeparator10, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(albumFavLb, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jSeparator6, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(artistaLb, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addComponent(jSeparator7, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(artistasFavLb)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator8, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(cancionesFavLb)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator9, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(baneadosLb, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(41, 41, 41)
+                .addGroup(menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(perfilLb, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(menuLayout.createSequentialGroup()
+                        .addGap(80, 80, 80)
+                        .addComponent(salir)))
+                .addGap(111, 111, 111))
+        );
+        menuLayout.setVerticalGroup(
+            menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jSeparator8)
+            .addGroup(menuLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(menuLayout.createSequentialGroup()
+                        .addComponent(jSeparator7)
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, menuLayout.createSequentialGroup()
+                        .addGroup(menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(baneadosLb, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(cancionesFavLb, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(menuLayout.createSequentialGroup()
+                                .addGap(8, 8, 8)
+                                .addComponent(perfilLb)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(salir)))
+                        .addGap(84, 84, 84))
+                    .addGroup(menuLayout.createSequentialGroup()
+                        .addGroup(menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jSeparator6, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(artistaLb, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(albumFavLb, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(artistasFavLb, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jSeparator9, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(menuLayout.createSequentialGroup()
+                        .addGroup(menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jSeparator10, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(albumLb, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE))))
+        );
+
+        Fondo.add(menu, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1300, 70));
+
+        generoFiltro.setBackground(new java.awt.Color(35, 58, 68));
+        generoFiltro.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
+        generoFiltro.setForeground(new java.awt.Color(255, 255, 255));
+        Fondo.add(generoFiltro, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 110, 160, 34));
+        Fondo.add(fechaFiltro, new org.netbeans.lib.awtextra.AbsoluteConstraints(1020, 110, 140, 30));
+
+        limpiarTodosFiltrosBtn.setBackground(new java.awt.Color(58, 107, 128));
+        limpiarTodosFiltrosBtn.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
+        limpiarTodosFiltrosBtn.setText("Limpiar Filtros");
+        limpiarTodosFiltrosBtn.setToolTipText("");
+        Fondo.add(limpiarTodosFiltrosBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(880, 160, -1, 30));
+
+        panelInformacionAlbum.setBackground(new java.awt.Color(35, 58, 68));
+        panelInformacionAlbum.setRoundBottomLeft(30);
+        panelInformacionAlbum.setRoundBottomRight(30);
+        panelInformacionAlbum.setRoundTopLeft(30);
+        panelInformacionAlbum.setRoundTopRight(30);
+
+        jLabel3.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel3.setText("Tipo:");
+
+        jPanel1.setBackground(new java.awt.Color(26, 26, 26));
+
+        ImagenArtistaPanel.setBackground(new java.awt.Color(153, 255, 255));
+        ImagenArtistaPanel.setPreferredSize(new java.awt.Dimension(119, 119));
+
+        javax.swing.GroupLayout ImagenArtistaPanelLayout = new javax.swing.GroupLayout(ImagenArtistaPanel);
+        ImagenArtistaPanel.setLayout(ImagenArtistaPanelLayout);
+        ImagenArtistaPanelLayout.setHorizontalGroup(
+            ImagenArtistaPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(ImagenArtistaPanelLayout.createSequentialGroup()
+                .addComponent(imagenArtista)
+                .addGap(0, 152, Short.MAX_VALUE))
+        );
+        ImagenArtistaPanelLayout.setVerticalGroup(
+            ImagenArtistaPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(ImagenArtistaPanelLayout.createSequentialGroup()
+                .addComponent(imagenArtista)
+                .addGap(0, 152, Short.MAX_VALUE))
+        );
+
+        nombreDelArtistaTxt.setBackground(new java.awt.Color(26, 26, 26));
+        nombreDelArtistaTxt.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        nombreDelArtistaTxt.setForeground(new java.awt.Color(255, 255, 255));
+        nombreDelArtistaTxt.setText("Nombre Del Album");
+        nombreDelArtistaTxt.setBorder(null);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(34, 34, 34)
+                        .addComponent(nombreDelArtistaTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(ImagenArtistaPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(22, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(19, 19, 19)
+                .addComponent(ImagenArtistaPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(nombreDelArtistaTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(22, 22, 22))
+        );
+
+        jLabel4.setFont(new java.awt.Font("OCR A Extended", 0, 36)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel4.setText("Informacion");
+
+        jPanel3.setBackground(new java.awt.Color(35, 58, 68));
+
+        Canciones.setBackground(new java.awt.Color(35, 58, 68));
+
+        ListaDeIntegrantesTabla.setBackground(new java.awt.Color(35, 58, 68));
+        ListaDeIntegrantesTabla.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
+        ListaDeIntegrantesTabla.setForeground(new java.awt.Color(255, 255, 255));
+        ListaDeIntegrantesTabla.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null},
+                {null},
+                {null},
+                {null}
+            },
+            new String [] {
+                "Canciones"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        Canciones.setViewportView(ListaDeIntegrantesTabla);
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Canciones, javax.swing.GroupLayout.DEFAULT_SIZE, 304, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addComponent(Canciones, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        tipoArtistaTxt.setEditable(false);
+        tipoArtistaTxt.setBackground(new java.awt.Color(35, 58, 68));
+        tipoArtistaTxt.setFont(new java.awt.Font("OCR A Extended", 0, 14)); // NOI18N
+        tipoArtistaTxt.setForeground(new java.awt.Color(255, 255, 255));
+        tipoArtistaTxt.setBorder(null);
+
+        jLabel6.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel6.setText("Genero:");
+
+        generoTxt.setEditable(false);
+        generoTxt.setBackground(new java.awt.Color(35, 58, 68));
+        generoTxt.setFont(new java.awt.Font("OCR A Extended", 0, 14)); // NOI18N
+        generoTxt.setForeground(new java.awt.Color(255, 255, 255));
+        generoTxt.setBorder(null);
+
+        agregarFavoritoAlbumBtn.setBackground(new java.awt.Color(58, 107, 128));
+        agregarFavoritoAlbumBtn.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
+        agregarFavoritoAlbumBtn.setToolTipText("");
+
+        jPanel4.setBackground(new java.awt.Color(35, 58, 68));
+
+        Canciones1.setBackground(new java.awt.Color(35, 58, 68));
+
+        ListaDeCancionesArtista.setBackground(new java.awt.Color(35, 58, 68));
+        ListaDeCancionesArtista.setFont(new java.awt.Font("OCR A Extended", 0, 12)); // NOI18N
+        ListaDeCancionesArtista.setForeground(new java.awt.Color(255, 255, 255));
+        ListaDeCancionesArtista.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null},
+                {null},
+                {null},
+                {null}
+            },
+            new String [] {
+                "Canciones"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        Canciones1.setViewportView(ListaDeCancionesArtista);
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Canciones1, javax.swing.GroupLayout.DEFAULT_SIZE, 304, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addComponent(Canciones1, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout panelInformacionAlbumLayout = new javax.swing.GroupLayout(panelInformacionAlbum);
+        panelInformacionAlbum.setLayout(panelInformacionAlbumLayout);
+        panelInformacionAlbumLayout.setHorizontalGroup(
+            panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(agregarFavoritoAlbumBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tipoArtistaTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 299, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(generoTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 299, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(46, Short.MAX_VALUE))
+            .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelInformacionAlbumLayout.createSequentialGroup()
+                    .addContainerGap(183, Short.MAX_VALUE)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(149, 149, 149)))
+        );
+        panelInformacionAlbumLayout.setVerticalGroup(
+            panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
+                .addGap(100, 100, 100)
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(agregarFavoritoAlbumBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
+                        .addComponent(tipoArtistaTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
+                        .addComponent(jLabel6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(generoTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(16, 16, 16))))
+            .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
+                    .addGap(16, 16, 16)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(410, Short.MAX_VALUE)))
+        );
+
+        Fondo.add(panelInformacionAlbum, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 210, 590, 490));
+
         getContentPane().add(Fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1280, 720));
 
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void busquedaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_busquedaActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_busquedaActionPerformed
-
-    private void buscarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buscarBtnActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_buscarBtnActionPerformed
-
-    private void perfilLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_perfilLbMouseClicked
-
-        dispose();
-        new ActualizarUsuario().setVisible(true);
-    }//GEN-LAST:event_perfilLbMouseClicked
-
-    private void artistasFavLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_artistasFavLbMouseClicked
+    private void albumFavLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_albumFavLbMouseClicked
         dispose();
         new ArtistaFavorito().setVisible(true);
-    }//GEN-LAST:event_artistasFavLbMouseClicked
-
-    private void menuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBtnActionPerformed
-        int panelWidth = menuDesplegablePanel.getWidth();
-        int targetX = isMenuVisible ? -panelWidth : 0; // Determina el objetivo según el estado
-        isMenuVisible = !isMenuVisible; // Alternar estado
-
-        // Desactivar tabla cuando el menú está visible
-        tablaArtistaFav.setEnabled(!isMenuVisible);
-
-        javax.swing.Timer timer = new javax.swing.Timer(15, new java.awt.event.ActionListener() {
-            int currentX = menuDesplegablePanel.getX();
-
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                if ((isMenuVisible && currentX < targetX) || (!isMenuVisible && currentX > targetX)) {
-                    currentX += isMenuVisible ? 15 : -15; // Mover según el estado
-                    menuDesplegablePanel.setLocation(currentX, menuDesplegablePanel.getY());
-                } else {
-                    ((javax.swing.Timer) e.getSource()).stop();
-                }
-            }
-        });
-
-        timer.start();
-
-    }//GEN-LAST:event_menuBtnActionPerformed
+    }//GEN-LAST:event_albumFavLbMouseClicked
 
     private void artistaLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_artistaLbMouseClicked
         dispose();
         new Artista().setVisible(true);
     }//GEN-LAST:event_artistaLbMouseClicked
 
-    private void albumFavLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_albumFavLbMouseClicked
-
+    private void artistasFavLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_artistasFavLbMouseClicked
         dispose();
-        new AlbumFavorito().setVisible(true);    }//GEN-LAST:event_albumFavLbMouseClicked
+        new ArtistaFavorito().setVisible(true);
+    }//GEN-LAST:event_artistasFavLbMouseClicked
 
-    private void albumLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_albumLbMouseClicked
-        dispose();
-        new Principal().setVisible(true);
-    }//GEN-LAST:event_albumLbMouseClicked
+    private void perfilLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_perfilLbMouseClicked
+        try {
+            ActualizarUsuario actualizarUsuario = new ActualizarUsuario();
+            actualizarUsuario.setLocationRelativeTo(this); // Center the new window
+            actualizarUsuario.setVisible(true);
+            this.dispose();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al abrir la ventana de actualización: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_perfilLbMouseClicked
 
     private void salirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_salirMouseClicked
         int confirm = JOptionPane.showConfirmDialog(
@@ -606,35 +644,65 @@ public class ArtistaFavorito extends javax.swing.JFrame {
         );
 
         if (confirm == JOptionPane.YES_OPTION) {
-            dispose(); // Properly dispose of the window instead of System.exit(0)
-            System.exit(0);
+            dispose();
+            new Inicio().setVisible(true);
         }
     }//GEN-LAST:event_salirMouseClicked
 
+    private void albumLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_albumLbMouseClicked
+        dispose();
+        new Principal().setVisible(true);
+    }//GEN-LAST:event_albumLbMouseClicked
+
+    private void cancionesFavLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cancionesFavLbMouseClicked
+        this.dispose();
+        new CancionesFavoritas().setVisible(true);
+
+    }//GEN-LAST:event_cancionesFavLbMouseClicked
+
+    private void baneadosLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_baneadosLbMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_baneadosLbMouseClicked
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JScrollPane Canciones;
+    private javax.swing.JScrollPane Canciones1;
     private javax.swing.JPanel Fondo;
+    private javax.swing.JPanel ImagenArtistaPanel;
+    private javax.swing.JTable ListaDeCancionesArtista;
+    private javax.swing.JTable ListaDeIntegrantesTabla;
+    private javax.swing.JButton agregarFavoritoAlbumBtn;
     private javax.swing.JLabel albumFavLb;
     private javax.swing.JLabel albumLb;
     private javax.swing.JLabel artistaLb;
     private javax.swing.JLabel artistasFavLb;
-    private javax.swing.JButton buscarBtn;
-    private javax.swing.JTextField busqueda;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel baneadosLb;
+    private javax.swing.JLabel cancionesFavLb;
+    private com.toedter.calendar.JDateChooser fechaFiltro;
+    private javax.swing.JComboBox<String> generoFiltro;
+    private javax.swing.JTextField generoTxt;
+    private javax.swing.JLabel imagenArtista;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JSeparator jSeparator2;
-    private javax.swing.JSeparator jSeparator3;
-    private javax.swing.JSeparator jSeparator4;
-    private javax.swing.JSeparator jSeparator5;
-    private javax.swing.JButton menuBtn;
-    private javax.swing.JPanel menuDesplegablePanel;
+    private javax.swing.JSeparator jSeparator10;
+    private javax.swing.JSeparator jSeparator6;
+    private javax.swing.JSeparator jSeparator7;
+    private javax.swing.JSeparator jSeparator8;
+    private javax.swing.JSeparator jSeparator9;
+    private javax.swing.JButton limpiarTodosFiltrosBtn;
+    private controlador.PanelRound menu;
+    private javax.swing.JTextField nombreDelArtistaTxt;
     private controlador.PanelRound panelInformacionAlbum;
-    private controlador.PanelRound panelRound1;
-    private controlador.PanelRound panelRound3;
     private controlador.PanelRound panelRound5;
     private javax.swing.JLabel perfilLb;
     private javax.swing.JLabel salir;
-    private javax.swing.JTable tablaArtistaFav;
+    private javax.swing.JTable tablaArtistasFavoritos;
+    private javax.swing.JTextField tipoArtistaTxt;
     // End of variables declaration//GEN-END:variables
 }

@@ -36,6 +36,7 @@ presentacion\Principal$4.class
 presentacion\AlbumFavorito$8.class
 presentacion\ArtistaFavorito.class
 presentacion\ActualizarUsuario.class
+presentacion\Baneado$11.class
 presentacion\Baneado$10.class
 presentacion\Artista$15.class
 presentacion\AlbumFavorito$7.class
@@ -93,7 +94,6 @@ presentacion\AlbumFavorito$2.class
 presentacion\CancionesFavoritas$9.class
 presentacion\Principal$7.class
 presentacion\CancionesFavoritas$6.class
-presentacion\ArtistaFavorito$12.class
 presentacion\Entrar$2.class
 presentacion\Artista$3.class
 presentacion\Principal$8.class
