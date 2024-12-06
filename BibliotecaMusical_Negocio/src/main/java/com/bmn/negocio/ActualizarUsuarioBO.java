@@ -72,9 +72,8 @@ public class ActualizarUsuarioBO implements IActualizarUsuarioBO{
     }
     
     private void verificarFormatoCorreo(UsuarioActualizarDTO usuario) throws BOException {
-        if (!usuario.getCorreo().matches("^[\\w.%+-]+@gmail\\.com$")) {
-            throw new BOException("Se debe de incluir @gmail al "
-                    + "final del correo");
+        if (!usuario.getCorreo().matches(".+@")) {
+            throw new BOException("Se debe de incluir @ para ser valido");
         }
     }
     

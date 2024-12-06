@@ -3,6 +3,7 @@ presentacion\Artista$8.class
 presentacion\CancionesFavoritas.class
 presentacion\AlbumFavorito$9.class
 presentacion\Principal$3.class
+presentacion\Baneado$12.class
 presentacion\CancionesFavoritas$5.class
 presentacion\Baneado$4.class
 presentacion\Entrar.class
@@ -15,6 +16,7 @@ presentacion\Artista.class
 presentacion\AlbumFavorito$4.class
 presentacion\ActualizarUsuario$1.class
 presentacion\Baneado$5.class
+presentacion\Baneado$13.class
 presentacion\CancionesFavoritas$4.class
 presentacion\ArtistaFavorito$5.class
 controlador\TableHeaderAlignment$1.class
@@ -75,6 +77,7 @@ presentacion\Artista$1.class
 presentacion\Principal$14.class
 presentacion\Registro$1.class
 presentacion\Artista$10.class
+presentacion\CancionesFavoritas$13.class
 presentacion\Registro$4.class
 presentacion\Baneado$3.class
 presentacion\Principal.class

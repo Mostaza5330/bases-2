@@ -5,6 +5,8 @@ import com.bmn.dto.constantes.Genero;
 import com.bmn.excepciones.BOException;
 import com.bmn.factories.BOFactory;
 import com.bmn.negocio.ObtenerCancionesFavoritasBO;
+import controlador.RenderCeldas;
+import java.awt.Color;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import javax.swing.*;
@@ -27,11 +29,13 @@ public class CancionesFavoritas extends javax.swing.JFrame {
     private List<FavoritoDTO> favoritos;
 
     public CancionesFavoritas() {
-//        try {
-            // Inicializar componentes gráficos
+        try {
+//             Inicializar componentes gráficos
             initComponents();
 
             cargarInstancias();
+            
+            configurarTabla();
             
             if (this.favoritos != null) {
                 // Cargar tabla
@@ -41,13 +45,13 @@ public class CancionesFavoritas extends javax.swing.JFrame {
             //cargamos el comboBox
             cargarComboBox();
             
-//        } catch (Exception e) {
-//            // Manejo de excepciones generales
-//            JOptionPane.showMessageDialog(this,
-//                    "Error al inicializar la ventana de géneros restringidos: " + e.getMessage(),
-//                    "Error",
-//                    JOptionPane.ERROR_MESSAGE);
-//        }
+        } catch (Exception e) {
+            // Manejo de excepciones generales
+            JOptionPane.showMessageDialog(this,
+                    "Error al inicializar la ventana de géneros restringidos: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void cargarInstancias(){
@@ -96,6 +100,28 @@ public class CancionesFavoritas extends javax.swing.JFrame {
                     JOptionPane.ERROR_MESSAGE);
         }
     }
+    
+    private void configurarTabla() {
+        modeloTabla = new DefaultTableModel(new String[]{"GÉNERO RESTRINGIDO"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Hacer la tabla no editable
+            }
+        };
+        tablaBaneado.setModel(modeloTabla);
+        // Configurar render personalizado
+        RenderCeldas render = new RenderCeldas(tablaBaneado);
+        render.setColumnAlignment(0, SwingConstants.CENTER);
+        // Configurar colores y estilos
+        tablaBaneado.setBackground(new Color(35, 58, 68));
+        tablaBaneado.setForeground(Color.WHITE);
+        tablaBaneado.setRowHeight(50);
+        tablaBaneado.setSelectionBackground(new Color(58, 107, 128));
+        tablaBaneado.setSelectionForeground(Color.WHITE);
+        tablaBaneado.getTableHeader().setBackground(new Color(35, 58, 68));
+        tablaBaneado.getTableHeader().setForeground(Color.WHITE);
+    }
+    
     private void cargarComboBox() {
         for (Genero genero : Genero.values()) {
             cbxGeneros.addItem(genero.name());
@@ -437,7 +463,7 @@ public class CancionesFavoritas extends javax.swing.JFrame {
                 .addComponent(cbxGeneros, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(77, 77, 77)
                 .addComponent(dcFecha, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(85, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelInformacionAlbumLayout.createSequentialGroup()
                 .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
@@ -445,8 +471,8 @@ public class CancionesFavoritas extends javax.swing.JFrame {
                         .addComponent(quitarBaneoBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
                         .addGap(23, 23, 23)
-                        .addComponent(btnLimpiar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 121, Short.MAX_VALUE)
+                        .addComponent(btnLimpiar, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel2)))
                 .addGap(213, 213, 213))
         );
@@ -459,7 +485,7 @@ public class CancionesFavoritas extends javax.swing.JFrame {
                         .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(panelInformacionAlbumLayout.createSequentialGroup()
                         .addGap(23, 23, 23)
-                        .addComponent(btnLimpiar)))
+                        .addComponent(btnLimpiar, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(35, 35, 35)
                 .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(cbxGeneros, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)

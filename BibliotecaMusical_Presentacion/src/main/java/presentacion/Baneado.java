@@ -3,14 +3,12 @@ package presentacion;
 import com.bmn.dto.constantes.Genero;
 import com.bmn.excepciones.BOException;
 import com.bmn.factories.BOFactory;
+import com.bmn.negocio.AgregarRestringidoBO;
+import com.bmn.negocio.EliminarRestringidoBO;
 import com.bmn.negocio.ObtenerRestringidosBO;
-import controlador.RenderCeldas;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
-import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.util.List;
 
 /**
@@ -31,11 +29,11 @@ public class Baneado extends javax.swing.JFrame {
             // Inicializar componentes gráficos
             initComponents();
 
-            // Configurar tabla para mostrar géneros restringidos
-            configurarTabla();
-
+            cargarGeneros();
+            
             // Cargar los géneros restringidos
             cargarGenerosRestringidos();
+            
         } catch (Exception e) {
             // Manejo de excepciones generales
             JOptionPane.showMessageDialog(this,
@@ -44,26 +42,11 @@ public class Baneado extends javax.swing.JFrame {
                     JOptionPane.ERROR_MESSAGE);
         }
     }
-
-    private void configurarTabla() {
-        modeloTabla = new DefaultTableModel(new String[]{"GÉNERO RESTRINGIDO"}, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false; // Hacer la tabla no editable
-            }
-        };
-        tablaBaneado.setModel(modeloTabla);
-        // Configurar render personalizado
-        RenderCeldas render = new RenderCeldas(tablaBaneado);
-        render.setColumnAlignment(0, SwingConstants.CENTER);
-        // Configurar colores y estilos
-        tablaBaneado.setBackground(new Color(35, 58, 68));
-        tablaBaneado.setForeground(Color.WHITE);
-        tablaBaneado.setRowHeight(50);
-        tablaBaneado.setSelectionBackground(new Color(58, 107, 128));
-        tablaBaneado.setSelectionForeground(Color.WHITE);
-        tablaBaneado.getTableHeader().setBackground(new Color(35, 58, 68));
-        tablaBaneado.getTableHeader().setForeground(Color.WHITE);
+    
+    private void cargarGeneros(){
+        for (Genero genero : Genero.values()) {
+            generoSinBan.addItem(genero.name());
+        }
     }
 
     private void cargarGenerosRestringidos() {
@@ -73,14 +56,13 @@ public class Baneado extends javax.swing.JFrame {
 
             generosRestringidos = obtenerRestringidos.obtenerRestringidos();
 
-            // Limpiar modelo de tabla existente
-            modeloTabla.setRowCount(0);
-
-            // Iterar sobre los géneros restringidos y agregarlos a la tabla
-            for (Genero genero : generosRestringidos) {
-                modeloTabla.addRow(new Object[]{genero.name()});
+            if (generosRestringidos != null || !generosRestringidos.isEmpty()) {
+                //los cargamos al combo box.
+                for (Genero generosRestringido : generosRestringidos) {
+                    generoBaneado.addItem(generosRestringido.name());
+                }
             }
-
+            
             // Mensaje de depuración
             System.out.println("Géneros restringidos encontrados: " + generosRestringidos.size());
         } catch (BOException e) {
@@ -91,26 +73,32 @@ public class Baneado extends javax.swing.JFrame {
                     JOptionPane.ERROR_MESSAGE);
         }
     }
-
+    
     // Método getter para obtener los géneros restringidos
     public List<Genero> getGenerosRestringidos() {
         return generosRestringidos;
     }
 
-    private void buscarGenero(String texto) {
-        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(modeloTabla);
-        tablaBaneado.setRowSorter(sorter);
+    
+    public void recargarBaneados(){
+        try{
+            // Usar ObtenerRestringidosBO para obtener los géneros restringidos
+            ObtenerRestringidosBO obtenerRestringidos = BOFactory.obtenerRestringidosFactory();
 
-        if (texto.isEmpty()) {
-            sorter.setRowFilter(null);
-            return;
+            generoBaneado.removeAllItems();
+            
+            generosRestringidos = obtenerRestringidos.obtenerRestringidos();
+
+            //los cargamos al combo box.
+            for (Genero generosRestringido : generosRestringidos) {
+                generoBaneado.addItem(generosRestringido.name());
+            }
+            
+        }catch(BOException ex){
+                
         }
-
-        RowFilter<DefaultTableModel, Object> filter = RowFilter.regexFilter(
-                "(?i)" + texto, 0
-        ); // Buscar en la columna de géneros
-        sorter.setRowFilter(filter);
     }
+    
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -143,10 +131,6 @@ public class Baneado extends javax.swing.JFrame {
         quitarBaneoBtn = new javax.swing.JButton();
         banearBtn = new javax.swing.JButton();
         quitarBaneoBtn1 = new javax.swing.JButton();
-        panelRound5 = new controlador.PanelRound();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        tablaBaneado = new javax.swing.JTable();
-        jLabel3 = new javax.swing.JLabel();
 
         menuDesplegablePanel.setBackground(new java.awt.Color(58, 107, 128));
         menuDesplegablePanel.setPreferredSize(new java.awt.Dimension(290, 660));
@@ -313,9 +297,15 @@ public class Baneado extends javax.swing.JFrame {
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Baneados");
 
-        menuBtn.setBackground(new java.awt.Color(58, 107, 128));
-        menuBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/media/menu.png"))); // NOI18N
+        menuBtn.setBackground(new java.awt.Color(0, 51, 255));
+        menuBtn.setFont(new java.awt.Font("Segoe UI", 0, 48)); // NOI18N
+        menuBtn.setText("<");
         menuBtn.setBorder(null);
+        menuBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                menuBtnMouseClicked(evt);
+            }
+        });
         menuBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuBtnActionPerformed(evt);
@@ -371,16 +361,31 @@ public class Baneado extends javax.swing.JFrame {
         quitarBaneoBtn.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
         quitarBaneoBtn.setForeground(new java.awt.Color(255, 255, 255));
         quitarBaneoBtn.setText("Regresar");
+        quitarBaneoBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                quitarBaneoBtnActionPerformed(evt);
+            }
+        });
 
         banearBtn.setBackground(new java.awt.Color(58, 107, 128));
         banearBtn.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
         banearBtn.setForeground(new java.awt.Color(255, 255, 255));
         banearBtn.setText("Banear");
+        banearBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                banearBtnActionPerformed(evt);
+            }
+        });
 
         quitarBaneoBtn1.setBackground(new java.awt.Color(58, 107, 128));
         quitarBaneoBtn1.setFont(new java.awt.Font("OCR A Extended", 0, 18)); // NOI18N
         quitarBaneoBtn1.setForeground(new java.awt.Color(255, 255, 255));
         quitarBaneoBtn1.setText("Quitar Ban");
+        quitarBaneoBtn1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                quitarBaneoBtn1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout panelInformacionAlbumLayout = new javax.swing.GroupLayout(panelInformacionAlbum);
         panelInformacionAlbum.setLayout(panelInformacionAlbumLayout);
@@ -402,7 +407,7 @@ public class Baneado extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelInformacionAlbumLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(quitarBaneoBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(213, 213, 213))
+                .addGap(212, 212, 212))
         );
         panelInformacionAlbumLayout.setVerticalGroup(
             panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -417,68 +422,14 @@ public class Baneado extends javax.swing.JFrame {
                 .addGroup(panelInformacionAlbumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(banearBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 43, Short.MAX_VALUE)
                     .addComponent(quitarBaneoBtn1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 47, Short.MAX_VALUE)
                 .addComponent(quitarBaneoBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(8, Short.MAX_VALUE))
+                .addGap(19, 19, 19))
         );
 
-        Fondo.add(panelInformacionAlbum, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 100, 590, 260));
+        Fondo.add(panelInformacionAlbum, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 100, 590, 300));
 
-        panelRound5.setBackground(new java.awt.Color(35, 58, 68));
-        panelRound5.setRoundBottomLeft(30);
-        panelRound5.setRoundBottomRight(30);
-        panelRound5.setRoundTopLeft(30);
-        panelRound5.setRoundTopRight(30);
-
-        tablaBaneado.setBackground(new java.awt.Color(35, 58, 68));
-        tablaBaneado.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null},
-                {null},
-                {null},
-                {null}
-            },
-            new String [] {
-                "Genero"
-            }
-        ));
-        tablaBaneado.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        tablaBaneado.setGridColor(new java.awt.Color(35, 58, 68));
-        tablaBaneado.setSelectionBackground(new java.awt.Color(35, 58, 68));
-        jScrollPane1.setViewportView(tablaBaneado);
-        if (tablaBaneado.getColumnModel().getColumnCount() > 0) {
-            tablaBaneado.getColumnModel().getColumn(0).setPreferredWidth(200);
-        }
-
-        jLabel3.setFont(new java.awt.Font("OCR A Extended", 0, 36)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel3.setText("Generos baneados");
-
-        javax.swing.GroupLayout panelRound5Layout = new javax.swing.GroupLayout(panelRound5);
-        panelRound5.setLayout(panelRound5Layout);
-        panelRound5Layout.setHorizontalGroup(
-            panelRound5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelRound5Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 568, Short.MAX_VALUE)
-                .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound5Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel3)
-                .addGap(103, 103, 103))
-        );
-        panelRound5Layout.setVerticalGroup(
-            panelRound5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound5Layout.createSequentialGroup()
-                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 269, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-
-        Fondo.add(panelRound5, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 380, 580, 330));
-
-        getContentPane().add(Fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 740, 720));
+        getContentPane().add(Fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 740, 420));
 
         pack();
         setLocationRelativeTo(null);
@@ -496,28 +447,28 @@ public class Baneado extends javax.swing.JFrame {
     }//GEN-LAST:event_artistasFavLbMouseClicked
 
     private void menuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBtnActionPerformed
-        int panelWidth = menuDesplegablePanel.getWidth();
-        int targetX = isMenuVisible ? -panelWidth : 0; // Determina el objetivo según el estado
-        isMenuVisible = !isMenuVisible; // Alternar estado
-
-        // Desactivar tabla cuando el menú está visible
-        tablaBaneado.setEnabled(!isMenuVisible);
-
-        javax.swing.Timer timer = new javax.swing.Timer(15, new java.awt.event.ActionListener() {
-            int currentX = menuDesplegablePanel.getX();
-
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                if ((isMenuVisible && currentX < targetX) || (!isMenuVisible && currentX > targetX)) {
-                    currentX += isMenuVisible ? 15 : -15; // Mover según el estado
-                    menuDesplegablePanel.setLocation(currentX, menuDesplegablePanel.getY());
-                } else {
-                    ((javax.swing.Timer) e.getSource()).stop();
-                }
-            }
-        });
-
-        timer.start();
+//        int panelWidth = menuDesplegablePanel.getWidth();
+//        int targetX = isMenuVisible ? -panelWidth : 0; // Determina el objetivo según el estado
+//        isMenuVisible = !isMenuVisible; // Alternar estado
+//
+//        // Desactivar tabla cuando el menú está visible
+//        tablaBaneado.setEnabled(!isMenuVisible);
+//
+//        javax.swing.Timer timer = new javax.swing.Timer(15, new java.awt.event.ActionListener() {
+//            int currentX = menuDesplegablePanel.getX();
+//
+//            @Override
+//            public void actionPerformed(java.awt.event.ActionEvent e) {
+//                if ((isMenuVisible && currentX < targetX) || (!isMenuVisible && currentX > targetX)) {
+//                    currentX += isMenuVisible ? 15 : -15; // Mover según el estado
+//                    menuDesplegablePanel.setLocation(currentX, menuDesplegablePanel.getY());
+//                } else {
+//                    ((javax.swing.Timer) e.getSource()).stop();
+//                }
+//            }
+//        });
+//
+//        timer.start();
 
     }//GEN-LAST:event_menuBtnActionPerformed
 
@@ -560,6 +511,86 @@ public class Baneado extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_artistaLb2MouseClicked
 
+    private void menuBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menuBtnMouseClicked
+        Principal principal = new Principal();
+        principal.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_menuBtnMouseClicked
+
+    private void banearBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_banearBtnActionPerformed
+        try{
+            
+            int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro que desea banear este genero?, todos sus "
+                        + "favoritos bajo este genero seran eliminados.",
+                "Confirmar baneo",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+            );
+            
+            if (confirm == JOptionPane.YES_OPTION) {
+                
+                String selected = (String)generoSinBan.getSelectedItem();
+
+                Genero genero = Genero.valueOf(selected);
+
+                AgregarRestringidoBO agregar = BOFactory.agregarRestringidoFactory();
+
+                agregar.agregarRestringido(genero);
+
+                recargarBaneados();
+            }
+            
+        }
+        catch(BOException ex){
+            JOptionPane.showMessageDialog(this,
+                    "Error: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_banearBtnActionPerformed
+
+    private void quitarBaneoBtn1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quitarBaneoBtn1ActionPerformed
+        try{
+            
+            int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro que desea quitar este genero de sus generos baneados?",
+                "Confirmar",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+            );
+            
+            
+            if (confirm == JOptionPane.YES_OPTION){
+                
+                String selected = (String)generoBaneado.getSelectedItem();
+
+                Genero genero = Genero.valueOf(selected);
+
+                EliminarRestringidoBO agregar = BOFactory.eliminarRestringidoFactory();
+
+                agregar.eliminarRestringido(genero);
+
+                recargarBaneados();
+            }
+            
+        }
+        catch(BOException ex){
+            JOptionPane.showMessageDialog(this,
+                    "Error: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_quitarBaneoBtn1ActionPerformed
+
+    private void quitarBaneoBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quitarBaneoBtnActionPerformed
+        Principal principal = new Principal();
+        principal.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_quitarBaneoBtnActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Fondo;
     private javax.swing.JLabel albumFavLb;
@@ -573,8 +604,6 @@ public class Baneado extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> generoSinBan;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
@@ -586,11 +615,9 @@ public class Baneado extends javax.swing.JFrame {
     private javax.swing.JPanel menuDesplegablePanel;
     private controlador.PanelRound panelInformacionAlbum;
     private controlador.PanelRound panelRound1;
-    private controlador.PanelRound panelRound5;
     private javax.swing.JLabel perfilLb;
     private javax.swing.JButton quitarBaneoBtn;
     private javax.swing.JButton quitarBaneoBtn1;
     private javax.swing.JLabel salir;
-    private javax.swing.JTable tablaBaneado;
     // End of variables declaration//GEN-END:variables
 }
