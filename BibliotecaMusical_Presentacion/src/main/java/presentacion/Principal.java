@@ -136,9 +136,53 @@ public class Principal extends javax.swing.JFrame {
                 }
             }
         });
+//        cancionesDelAlbum.addMouseListener(new java.awt.event.MouseAdapter() {
+//        @Override
+//        public void mouseClicked(java.awt.event.MouseEvent evt) {
+//            int row = cancionesDelAlbum.rowAtPoint(evt.getPoint());
+//            int col = cancionesDelAlbum.columnAtPoint(evt.getPoint());
+//            
+//            if (col == 1) {
+//                int selectedAlbumRow = tablaAlbum.getSelectedRow();
+//                
+//                if (selectedAlbumRow >= 0) {
+//                    try {
+//                        int albumModelRow = tablaAlbum.convertRowIndexToModel(selectedAlbumRow);
+//                        AlbumVistaDTO albumVista = albumes.get(albumModelRow);
+//                        ObtenerAlbumBO albumBO = BOFactory.obtenerAlbumFactory();
+//                        AlbumDTO album = albumBO.obtenerAlbum(albumVista.getId());
+//                        
+//                        String nombreCancion = album.getCanciones().get(row).getNombre();
+//                        ObjectId idAlbum = new ObjectId(album.getId());
+//                        ObjectId idUsuario = UsuarioST.getInstance().getId();
+//                        
+//                        FavoritoDAO favoritoDAO = new FavoritoDAO();
+//                        boolean esFavorito = favoritoDAO.verificarCancionFavorita(nombreCancion, idAlbum, idUsuario);
+//                        
+//                        if (esFavorito) {
+//                            favoritoDAO.eliminarCancionFavorita(nombreCancion, idAlbum, idUsuario);
+//                        } else {
+//                            favoritoDAO.agregarCancionFavorita(nombreCancion, idAlbum, idUsuario);
+//                        }
+//                        
+//                        // Update UI
+//                        DefaultTableModel model = (DefaultTableModel) cancionesDelAlbum.getModel();
+//                        model.setValueAt(!esFavorito ? "★" : "☆", row, 1);
+//                        
+//                    } catch (Exception ex) {
+//                        JOptionPane.showMessageDialog(null,
+//                            "Error al actualizar favorito: " + ex.getMessage(),
+//                            "Error",
+//                            JOptionPane.ERROR_MESSAGE);
+//                    }
+//                }
+//            }
+//        }
+//    });
+
     }
 
-    private void verificarFavorito(AlbumDTO album, String idUsuario) throws BOException {
+    private void verificarFavorito(AlbumDTO album, ObjectId idUsuario) throws BOException {
 
         ObjectId idAlbum = new ObjectId(album.getId());
         // Fix: Extract just the ID string from Usuario object
@@ -290,10 +334,6 @@ public class Principal extends javax.swing.JFrame {
 
     public Usuario getUsuarioActual() {
         return usuarioActual;
-    }
-
-    private void obtenerSeleccion() {
-
     }
 
     @SuppressWarnings("unchecked")
@@ -790,7 +830,7 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_perfilLbMouseClicked
 
     private void artistasFavLbMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_artistasFavLbMouseClicked
-       dispose();
+        dispose();
         new ArtistaFavorito().setVisible(true);
     }//GEN-LAST:event_artistasFavLbMouseClicked
 
