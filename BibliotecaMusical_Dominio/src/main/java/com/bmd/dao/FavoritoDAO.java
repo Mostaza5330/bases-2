@@ -279,18 +279,35 @@ public class FavoritoDAO implements IFavoritoDAO {
      * @throws DAOException En caso de excepcion en la consulta.
      */
     @Override
-    public List<Favorito> obtenerCancionesFavoritas(String genero, 
-            LocalDate fechaAgregacion, ObjectId idUsuario) throws DAOException {
+    public List<Favorito> obtenerCancionesFavoritas(String genero, LocalDate fechaAgregacion, ObjectId idUsuario) throws DAOException {
         try {
+            // Obtener la colección de usuarios
             MongoCollection<Usuario> collection = conexion.getCollection("usuarios", Usuario.class);
 
+            // Buscar el usuario por su ID
             Usuario usuario = collection.find(eq("_id", idUsuario)).first();
+
+            // Verificar si el usuario fue encontrado
             if (usuario == null) {
                 throw new DAOException("Usuario no encontrado");
             }
 
+            // Obtener la lista de favoritos del usuario
+            List<Favorito> favoritos = usuario.getFavoritos();
+
+            // Si la lista de favoritos es nula o vacía, retornar null
+            if (favoritos == null || favoritos.isEmpty()) {
+                return null;
+            }
+
+            // Inicializar la lista de canciones favoritas
             List<Favorito> cancionesFavoritas = new ArrayList<>();
-            for (Favorito favorito : usuario.getFavoritos()) {
+
+            // Iterar sobre los favoritos del usuario
+            for (Favorito favorito : favoritos) {
+                System.out.println("Verificando favorito: " + favorito);
+
+                // Verificar si el favorito es una canción y coincide con los criterios
                 if ("CANCION".equals(favorito.getTipo()) && 
                     (genero == null || genero.isEmpty() || genero.equals(favorito.getGenero())) && 
                     (fechaAgregacion == null || fechaAgregacion.equals(favorito.getFechaAgregacion()))) {
@@ -298,11 +315,17 @@ public class FavoritoDAO implements IFavoritoDAO {
                     cancionesFavoritas.add(favorito);
                 }
             }
+
+            // Retornar la lista de canciones favoritas
             return cancionesFavoritas;
         } catch (Exception e) {
+            e.printStackTrace(); // Imprimir el stack trace para depuración
             throw new DAOException("Error al obtener las canciones favoritas", e);
         }
     }
+
+
+  
 
 
     /**
