@@ -4,9 +4,12 @@ import java.awt.Graphics2D;
 import com.bmd.entities.Usuario;
 import com.bmn.dto.AlbumDTO;
 import com.bmn.dto.AlbumVistaDTO;
+import com.bmn.dto.FavoritoDTO;
 import com.bmn.dto.constantes.Genero;
+import static com.bmn.dto.constantes.Tipo.CANCION;
 import com.bmn.excepciones.BOException;
 import com.bmn.factories.BOFactory;
+import com.bmn.negocio.AgregarCancionFavoritaBO;
 import com.bmn.negocio.ObtenerAlbumBO;
 import com.bmn.negocio.ObtenerAlbumesFiltradosBO;
 import com.bmn.singletonUsuario.UsuarioST;
@@ -17,7 +20,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.Date;
 import javax.swing.table.TableRowSorter;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -30,40 +32,48 @@ public class Principal extends javax.swing.JFrame {
 
     private Usuario usuarioActual;
     private List<AlbumVistaDTO> albumes;
+    private AgregarCancionFavoritaBO agregarFavoritoBO;
 
     public Principal() {
         try {
-            initComponents();
-            configurarTabla();
-            cargarComboBox();
+            this.agregarFavoritoBO = BOFactory.agregarCancionFavoritaFactory();
+            initComponents(); // Inicializa los componentes de la interfaz gráfica
+            configurarTabla(); // Configura la tabla principal de álbumes
+            cargarComboBox(); // Carga los datos iniciales en los elementos de selección (combos)
 
-            // Add this line to generoComboBox initialization
+            // Agregar un elemento predeterminado al combo de géneros
             generoFiltro.addItem("Todos");
 
-            // Add these new listeners
+            // Agregar listeners para realizar búsquedas dinámicas y aplicar filtros
             busqueda.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
                 @Override
                 public void insertUpdate(javax.swing.event.DocumentEvent e) {
-                    filtrarAlbumes();
+                    filtrarAlbumes(); // Filtra los álbumes al escribir en el campo de búsqueda
                 }
 
                 @Override
                 public void removeUpdate(javax.swing.event.DocumentEvent e) {
-                    filtrarAlbumes();
+                    filtrarAlbumes(); // Filtra los álbumes al eliminar texto del campo de búsqueda
                 }
 
                 @Override
                 public void changedUpdate(javax.swing.event.DocumentEvent e) {
-                    filtrarAlbumes();
+                    filtrarAlbumes(); // Filtra los álbumes al realizar cambios en el campo de búsqueda
                 }
             });
 
+            // Listener para aplicar filtros al seleccionar un género
             generoFiltro.addActionListener(e -> filtrarAlbumes());
+
+            // Listener para aplicar filtros al cambiar la fecha
             fechaFiltro.addPropertyChangeListener("date", e -> filtrarAlbumes());
+
+            // Listener para limpiar todos los filtros
             limpiarTodosFiltrosBtn.addActionListener(e -> limpiarFiltros());
 
-            this.usuarioActual = UsuarioST.getInstance();
+            this.usuarioActual = UsuarioST.getInstance(); // Inicializa el usuario actual
         } catch (Exception e) {
+            // Muestra un mensaje de error si ocurre un problema durante la inicialización
             JOptionPane.showMessageDialog(this,
                     "Error al inicializar: " + e.getMessage(),
                     "Error",
@@ -72,40 +82,45 @@ public class Principal extends javax.swing.JFrame {
     }
 
     private void filterTable(String searchTerm) {
+        // Filtra la tabla utilizando el término de búsqueda ingresado
         DefaultTableModel model = (DefaultTableModel) tablaAlbum.getModel();
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
         tablaAlbum.setRowSorter(sorter);
 
+        // Crea un filtro para buscar en las columnas "Nombre del álbum" y "Artista"
         RowFilter<DefaultTableModel, Object> filter = RowFilter.regexFilter(
                 "(?i)" + searchTerm, 1, 2
-        ); // Buscar en las columnas de nombre del álbum y artista
-        sorter.setRowFilter(filter);
+        );
+        sorter.setRowFilter(filter); // Aplica el filtro
     }
 
     private void configurarTabla() {
-        DefaultTableModel modelo = new DefaultTableModel(new String[]{"IMAGEN", "NOMBRE DEL ALBUM", "ARTISTA"}, 0) {
+        // Configura las propiedades de la tabla principal de álbumes
+        DefaultTableModel modelo = new DefaultTableModel(
+                new String[]{"IMAGEN", "NOMBRE DEL ÁLBUM", "ARTISTA"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // Hacer la tabla no editable
+                return false; // Desactiva la edición de celdas en la tabla
             }
 
             @Override
             public Class<?> getColumnClass(int columnIndex) {
+                // Define el tipo de datos de cada columna
                 if (columnIndex == 0) {
-                    return ImageIcon.class; // Renderizar imágenes en la primera columna
+                    return ImageIcon.class; // La primera columna muestra imágenes
                 }
                 return Object.class;
             }
         };
         tablaAlbum.setModel(modelo);
 
-        // Configurar render personalizado
+        // Configura el renderizado de las celdas para mejorar la presentación visual
         RenderCeldas render = new RenderCeldas(tablaAlbum);
-        render.setColumnAlignment(0, SwingConstants.CENTER); // Imagen centrada
-        render.setColumnAlignment(1, SwingConstants.CENTER); // Nombre centrado
-        render.setColumnAlignment(2, SwingConstants.LEFT);   // Artista a la izquierda
+        render.setColumnAlignment(0, SwingConstants.CENTER); // Centra las imágenes
+        render.setColumnAlignment(1, SwingConstants.CENTER); // Centra los nombres de álbumes
+        render.setColumnAlignment(2, SwingConstants.LEFT);   // Alinea los artistas a la izquierda
 
-        // Configurar colores y estilos
+        // Establece los colores y estilos de la tabla
         tablaAlbum.setBackground(new Color(35, 58, 68));
         tablaAlbum.setForeground(Color.WHITE);
         tablaAlbum.setRowHeight(50);
@@ -114,11 +129,12 @@ public class Principal extends javax.swing.JFrame {
         tablaAlbum.getTableHeader().setBackground(new Color(35, 58, 68));
         tablaAlbum.getTableHeader().setForeground(Color.WHITE);
 
-        // Configurar columnas
-        tablaAlbum.getColumnModel().getColumn(0).setPreferredWidth(100);  // Imagen
-        tablaAlbum.getColumnModel().getColumn(1).setPreferredWidth(200);  // Nombre
-        tablaAlbum.getColumnModel().getColumn(2).setPreferredWidth(150);  // Artista
+        // Configura el ancho de las columnas
+        tablaAlbum.getColumnModel().getColumn(0).setPreferredWidth(100);  // Columna de imagen
+        tablaAlbum.getColumnModel().getColumn(1).setPreferredWidth(200);  // Columna de nombre
+        tablaAlbum.getColumnModel().getColumn(2).setPreferredWidth(150);  // Columna de artista
 
+        // Configura la tabla de canciones
         cancionesDelAlbum.setBackground(new Color(35, 58, 68));
         cancionesDelAlbum.setForeground(Color.WHITE);
         cancionesDelAlbum.setRowHeight(50);
@@ -126,26 +142,33 @@ public class Principal extends javax.swing.JFrame {
         cancionesDelAlbum.setSelectionForeground(Color.WHITE);
         cancionesDelAlbum.getTableHeader().setBackground(new Color(35, 58, 68));
         cancionesDelAlbum.getTableHeader().setForeground(Color.WHITE);
+
+        // Configura el evento de selección de filas
         configurarSeleccionTabla();
+
+        // Carga los datos iniciales en la tabla desde la base de datos
         cargarDatosDeLaBaseDeDatos(modelo);
     }
 
     private void configurarSeleccionTabla() {
+        // Configura el evento de selección de filas en la tabla de álbumes
         tablaAlbum.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                int selectedRow = tablaAlbum.getSelectedRow();
+                int selectedRow = tablaAlbum.getSelectedRow(); // Obtiene la fila seleccionada
                 if (selectedRow >= 0) {
                     try {
                         int modelRow = tablaAlbum.convertRowIndexToModel(selectedRow);
 
+                        // Obtiene el álbum seleccionado
                         AlbumVistaDTO albumVista = this.albumes.get(modelRow);
 
                         ObtenerAlbumBO albumBO = BOFactory.obtenerAlbumFactory();
-                        // Get just the string ID from the usuario object
                         AlbumDTO albumDetallado = albumBO.obtenerAlbum(albumVista.getId());
 
+                        // Actualiza el panel con la información del álbum seleccionado
                         actualizarPanelInformacion(albumDetallado);
                     } catch (BOException | NullPointerException ex) {
+                        // Muestra un mensaje de error si ocurre un problema al cargar los detalles
                         JOptionPane.showMessageDialog(this,
                                 "Error al cargar detalles del álbum: " + ex.getMessage(),
                                 "Error",
@@ -227,29 +250,36 @@ public class Principal extends javax.swing.JFrame {
                 boolean nuevoEstado = (boolean) cancionesDelAlbum.getValueAt(row, 1);
 
                 try {
-                    FavoritoBO favoritoBO = BOFactory.obtenerFavoritoFactory();
-                    if (nuevoEstado) {
-                        favoritoBO.agregarCancionFavorita(nombreCancion, album.getId(), usuarioActual.getId());
-                    } else {
-                        favoritoBO.eliminarCancionFavorita(nombreCancion, album.getId(), usuarioActual.getId());
-                    }
+                    // Create FavoritoDTO
+                    FavoritoDTO favoritoDTO = new FavoritoDTO.Builder()
+                            .setIdUsuario(UsuarioST.getInstance().getId())
+                            .setIdReferencia(album.getId())
+                            .setNombreCancion(nombreCancion)
+                            .setTipo(CANCION) // Assuming you have a TipoFavorito enum
+                            .setFechaAgregacion(LocalDate.now())
+                            .build();
 
-                    // Update the DTO to maintain consistency
+                    // Use the BO to add/remove favorite
+                    agregarFavoritoBO.agregarCancionFavorita(favoritoDTO);
+
+                    // Update the album DTO to reflect the change
                     album.getCanciones().get(row).setFavorito(nuevoEstado);
-
                 } catch (BOException ex) {
-                    JOptionPane.showMessageDialog(null,
-                            "Error al actualizar favorito: " + ex.getMessage(),
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
                     // Revert the checkbox state
-                    cancionesDelAlbum.setValueAt(!nuevoEstado, row, 1);
+                    SwingUtilities.invokeLater(() -> {
+                        cancionesDelAlbum.setValueAt(!nuevoEstado, row, 1);
+
+                        // Show error dialog
+                        JOptionPane.showMessageDialog(this,
+                                "No se pudo actualizar el estado de favorito: " + ex.getMessage(),
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    });
                 }
             }
         });
-    }
-    
 
+    }
     private void cargarComboBox() {
         for (Genero genero : Genero.values()) {
             generoFiltro.addItem(genero.name());
