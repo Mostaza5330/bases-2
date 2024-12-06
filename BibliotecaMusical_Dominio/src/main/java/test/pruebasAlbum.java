@@ -48,7 +48,7 @@ public class pruebasAlbum {
         Album album2 = new Album();
         album2.setId(new ObjectId("604c77f2a1b5b7844c8b4573")); // ObjectId válido
         album2.setNombre("Clásicos del Rock");
-        album2.setImagenPortada("url_to_album2_cover.jpg");
+        album2.setImagenPortada("entre_a_mi_mundo.jpg");
         album2.setFechaLanzamiento(LocalDate.of(2018, 10, 5));
         album2.setGenero("Afrobeat");
         album2.setArtista(new Artista.Builder().setId(new ObjectId("604c77f2a1b5b7844c8b4574")).
